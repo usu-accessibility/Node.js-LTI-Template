@@ -1,5 +1,7 @@
 const sql = require('../services/sql-service');
 const canvas_service = require('../services/canvas-service');
+const ADVANCED_TYPES = require('../constants/advanced_types');
+
 const { DateTime } = require('luxon'); // Use a library like luxon for handling dates
 const axios = require('axios');
 
@@ -1448,7 +1450,7 @@ function validateImageId(imageId) {
             error: true,
             message: 'image not found',
         };
-        
+
         return data;
     }
 }
@@ -1486,16 +1488,14 @@ function validateCourseId(courseId) {
     }
 }
 
-// function validateAdvancedType(advancedType) {
-//     // Assuming you have the array of advanced types available
-//     const ADVANCED_TYPES = [...]; // Replace with your actual array
-
-//     if (!ADVANCED_TYPES.includes(advancedType)) {
-//         const data = {
-//             error: true,
-//             message: 'invalid advanced type',
-//         };
-//         Action.jsonResponse(data);
-//         process.exit();
-//     }
-// }
+function validateAdvancedType(advancedType) {
+    // Assuming you have the array of advanced types available
+    if (!ADVANCED_TYPES.includes(advancedType)) {
+        const data = {
+            error: true,
+            message: 'invalid advanced type',
+        };
+        Action.jsonResponse(data);
+        process.exit();
+    }
+}
