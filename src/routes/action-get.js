@@ -1,17 +1,12 @@
 const router = require('express').Router();
 const action = require('../controllers/main-controller');
 
-// const postRoutes = require('./action-post');
+const postRoutes = require('./action-post');
 
-// router.use(postRoutes);
+router.use(postRoutes);
 
 router.get('/', function (req, res) {
   res.json(getHealth());
-});
-
-router.get('/health', function (req, res) {
-  res.json(getHealth());
-  res.end();
 });
 
 router.get('/get_user_details', (req, res) => {

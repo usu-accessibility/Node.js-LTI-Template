@@ -2,6 +2,13 @@ const router = require('express').Router();
 const action = require('../controllers/main-controller');
 const middleware = require('../middlewares/authentication');
 
+
+router.post('/health', function (req, res) {
+  console.log(req);
+  res.json(getHealth());
+  res.end();
+});
+
 router.post('/reset_users', (req, res) => {
   const requestBody = req.body;
 
@@ -25,7 +32,7 @@ router.post('/reset_users', (req, res) => {
   res.json(successData);
 });
 
-app.post('/get_image_name', (req, res) => {
+router.post('/get_image_name', (req, res) => {
     const requestBody = req.body;
   
     if (!requestBody || !requestBody.image_id) {
@@ -43,7 +50,7 @@ app.post('/get_image_name', (req, res) => {
 });
 
 
-app.post('/get_database_tables', (req, res) => {
+router.post('/get_database_tables', (req, res) => {
     const requestBody = req.body;
   
     if (
@@ -68,7 +75,7 @@ app.post('/get_database_tables', (req, res) => {
     res.json(data);
 });
 
-app.post('/load_images', (req, res) => {
+router.post('/load_images', (req, res) => {
     const requestBody = req.body;
   
     if (
@@ -138,7 +145,7 @@ app.post('/load_images', (req, res) => {
     }
 });
 
-app.post('/get_alt_text_updated_user_name', (req, res) => {
+router.post('/get_alt_text_updated_user_name', (req, res) => {
     // retrieve and validate the request body
     const requestBody = req.body;
   
@@ -164,7 +171,7 @@ app.post('/get_alt_text_updated_user_name', (req, res) => {
     }
 });
 
-app.post('/set_image_completed', (req, res) => {
+router.post('/set_image_completed', (req, res) => {
     // retrieve and validate the request body
     const requestBody = req.body;
   
@@ -244,7 +251,7 @@ app.post('/set_image_completed', (req, res) => {
     }
 });
 
-app.post('/push_image', (req, res) => {
+router.post('/push_image', (req, res) => {
     // Authorize the request
     middleware.authorize();
   
@@ -299,7 +306,7 @@ app.post('/push_image', (req, res) => {
     res.json(data);
 });
 
-app.post('/release_needs_conversion', (req, res) => {
+router.post('/release_needs_conversion', (req, res) => {
     // Authorize the request
     action.authorize();
   
@@ -321,7 +328,7 @@ app.post('/release_needs_conversion', (req, res) => {
     res.json(data);
 });
 
-app.post('/skip_image', (req, res) => {
+router.post('/skip_image', (req, res) => {
     // retrieve and validate the request body
     const requestBody = req.body;
   
@@ -347,7 +354,7 @@ app.post('/skip_image', (req, res) => {
     res.json(data);
 });
 
-app.post('/mark_image_as_advanced', (req, res) => {
+router.post('/mark_image_as_advanced', (req, res) => {
     // retrieve and validate the request body
     const requestBody = req.body;
   
@@ -373,7 +380,7 @@ app.post('/mark_image_as_advanced', (req, res) => {
     res.json(data);
 });
 
-app.post('/update_image_alt_text', (req, res) => {
+router.post('/update_image_alt_text', (req, res) => {
     // retrieve and validate the request body
     const requestBody = req.body;
   
@@ -399,7 +406,7 @@ app.post('/update_image_alt_text', (req, res) => {
     res.json(data);
 });
 
-app.post('/update_user_alt_text', (req, res) => {
+router.post('/update_user_alt_text', (req, res) => {
     // retrieve and validate the request body
     const requestBody = req.body;
   
@@ -426,7 +433,7 @@ app.post('/update_user_alt_text', (req, res) => {
 });
 
 
-app.post('/mark_image_as_unusable', (req, res) => {
+router.post('/mark_image_as_unusable', (req, res) => {
     // retrieve and validate the request body
     const requestBody = req.body;
   
