@@ -119,6 +119,8 @@ module.exports = function(router, session){
     
       const images = await action.getCourseImages(courseId);
 
+      console.log(images);
+
       if (images.error) {
         const data = {
           error: true,

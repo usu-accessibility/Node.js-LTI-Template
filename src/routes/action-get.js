@@ -71,15 +71,22 @@ module.exports = function(router, session){
     router.get('/update_course_id', async (req, res) => {
         const user = await action.getUserByLmsId(session.canvas_data.userID); // Assuming session data is available
 
+        console.log("update_course_id");
         console.log(user);
+        console.log(req.query.lock);
+        console.log(req.query.lock !== null)
         if (user.success) {
             const userId = user.user_id;
 
-            if (req.query.lock) {
+            if (req.query.lock !== null) {
                 const editorValue = await sql.queryFirstRow(
                     "SELECT editor FROM at_image WHERE id = ?",
                     [req.query.image_id]
                 );
+
+                console.log(editorValue)
+                console.log(editorValue[0].editor !== userId)
+                console.log(editorValue[0].editor !== 0)
 
                 if (editorValue.length !== 0 && editorValue[0].editor !== 0 && editorValue[0].editor !== userId) {
                     const data = {
@@ -87,6 +94,7 @@ module.exports = function(router, session){
                     };
                     return res.json(data);
                 } else {
+                    console.log(userId + " " + req.query.image_id + " " + req.query.lock)
                     var result = await action.updateEditorId(userId, req.query.image_id, req.query.lock);
 
                     // Assuming you want to perform a task after updating the editor ID

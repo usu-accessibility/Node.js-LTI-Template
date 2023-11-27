@@ -857,7 +857,7 @@ async function getImageInfo(imageId) {
 async function markImageAsAdvanced(imageId, advancedType) {
   try {
     await sql.queryFirstRow(
-      "UPDATE at_image SET advanced_type=?, editor=NULL WHERE id=?",
+      "UPDATE at_image SET advanced_type=?, editor=0 WHERE id=?",
       [advancedType, imageId]
     );
   } catch (error) {
@@ -993,7 +993,7 @@ async function setPushedToCanvas(imageId) {
           courseId: courseId,
           url: file.url,
         }));
-  
+
       const imagesInUse = await findCourseImages(images, courseId);
   
       return imagesInUse;
@@ -1331,6 +1331,7 @@ async function findCourseImages(images, courseId) {
 
 
 async function findUsedImages(images, body, courseId, imagesInUse, value, type) {
+  
   if (body === '') {
     return [];
   }
@@ -1343,7 +1344,6 @@ async function findUsedImages(images, body, courseId, imagesInUse, value, type) 
     const fileNameSearch = /alt=["']([^"']+\.((jpeg|jpg|jpe|jif|jfif|jfi|png|gif|webp|tiff|tif|psd|raw|bmp|dib|heif|heic|ind|indd|indt|svg|svgz|ai|eps)\s*\.?))["']/i;
 
     const matches = body.match(search);
-
     if (matches) {
       let needsAltText = false;
 
@@ -1354,6 +1354,8 @@ async function findUsedImages(images, body, courseId, imagesInUse, value, type) 
         }
       }
 
+      console.log(needsAltText);
+
       if (needsAltText && !(await imageInArray(image, imagesInUse))) {
         if (type === 'pages') {
           image.canvas_page = value || '';
@@ -1363,50 +1365,53 @@ async function findUsedImages(images, body, courseId, imagesInUse, value, type) 
           image.topic_url = value || '';
         }
 
+        imagesInUse.push(image);
       } else if (await imageInArray(image, imagesInUse)) {
-        if (type === 'pages') {
-          for (const element of imagesInUse) {
-            if (element.url === image.url && 'canvas_page' in element) {
-              if (element.canvas_page === '') {
-                element.canvas_page = value || '';
-              } else {
-                const delimiter = '/';
-                const array = (value || '').split(delimiter);
-                const page = array[array.length - 1];
-                element.canvas_page = `${element.canvas_page};${page}`;
+          if (type === 'pages') {
+            for (const element of imagesInUse) {
+              if (element.url === image.url && 'canvas_page' in element) {
+                if (element.canvas_page === '') {
+                  element.canvas_page = value || '';
+                } else {
+                  const delimiter = '/';
+                  const array = (value || '').split(delimiter);
+                  const page = array[array.length - 1];
+                  element.canvas_page = `${element.canvas_page};${page}`;
+                }
               }
             }
-          }
-        } else if (type === 'assignment') {
-          for (const element of imagesInUse) {
-            if (element.url === image.url && 'assignment_url' in element) {
-              if (element.assignment_url === '') {
-                element.assignment_url = value || '';
-              } else {
-                const delimiter = '/';
-                const array = (value || '').split(delimiter);
-                const page = array[array.length - 1];
-                element.assignment_url = `${element.assignment_url};${page}`;
+          } else if (type === 'assignment') {
+            for (const element of imagesInUse) {
+              if (element.url === image.url && 'assignment_url' in element) {
+                if (element.assignment_url === '') {
+                  element.assignment_url = value || '';
+                } else {
+                  const delimiter = '/';
+                  const array = (value || '').split(delimiter);
+                  const page = array[array.length - 1];
+                  element.assignment_url = `${element.assignment_url};${page}`;
+                }
               }
             }
-          }
-        } else if (type === 'discussion') {
-          for (const element of imagesInUse) {
-            if (element.url === image.url && 'topic_url' in element) {
-              if (element.topic_url === '') {
-                element.topic_url = value || '';
-              } else {
-                const delimiter = '/';
-                const array = (value || '').split(delimiter);
-                const page = array[array.length - 1];
-                element.topic_url = `${element.topic_url};${page}`;
+          } else if (type === 'discussion') {
+            for (const element of imagesInUse) {
+              if (element.url === image.url && 'topic_url' in element) {
+                if (element.topic_url === '') {
+                  element.topic_url = value || '';
+                } else {
+                  const delimiter = '/';
+                  const array = (value || '').split(delimiter);
+                  const page = array[array.length - 1];
+                  element.topic_url = `${element.topic_url};${page}`;
+                }
               }
             }
           }
         }
-      }
     }
   }
+
+
 
   return imagesInUse;
 }
