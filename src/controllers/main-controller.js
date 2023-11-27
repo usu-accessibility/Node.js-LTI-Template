@@ -19,12 +19,12 @@ async function getCanvasPage(courseId){
     return await sql.readDataOnCondition(table_name, 'lms_id', courseId, columns);
 }
 
-async function getDatabaseTables(courseId){
-    var table_name = 'at_image';
-    var columns = "canvas_page";
+// async function getDatabaseTables(courseId){
+//     var table_name = 'at_image';
+//     var columns = "canvas_page";
 
-    return await sql.readDataOnCondition(table_name, 'lms_id', courseId, columns);
-}
+//     return await sql.readDataOnCondition(table_name, 'lms_id', courseId, columns);
+// }
 
 async function getDatabaseTables(table) {
     let table_name, columns;
@@ -154,107 +154,110 @@ async function getActiveCourses(userId, advancedType) {
     `;
   }
 
-  const activeCourses = await sql.query(activeCoursesQuery, [userId, advancedType]);
+  const activeCourses = await sql.queryFirstRow(activeCoursesQuery, [userId, advancedType]);
   return activeCourses;
 }
 
 // Function to get an image
-async function getImage(selectedCourseId, userId) {
-  const table_name = 'at_image';
+async function getImage(selectedCourseId, userId, session) {
+    const table_name = 'at_image';
 
-  let imageQuery;
+    let imageQuery;
 
-  if (!session.skippedImages || session.skippedImages.length === 0) {
-    imageQuery = `
-      SELECT id, image_url, course_id, image_name FROM ${table_name} 
-      WHERE completed_at = '0000-00-00 00:00:00' AND advanced_type IS NULL AND is_unusable=0 AND course_id = ? AND editor = ?
-      ORDER BY created_at ASC
-      LIMIT 1
-    `;
-
-    let image = await sql.queryFirstRow(imageQuery, [selectedCourseId, userId]);
-
-    if (!image) {
+    if (!session.skippedImages || session.skippedImages.length === 0) {
       imageQuery = `
         SELECT id, image_url, course_id, image_name FROM ${table_name} 
-        WHERE completed_at = '0000-00-00 00:00:00' AND advanced_type IS NULL AND is_unusable=0 AND course_id = ? AND editor = 0
+        WHERE completed_at = '0000-00-00 00:00:00' AND advanced_type IS NULL AND is_unusable=0 AND course_id = ? AND editor = ?
         ORDER BY created_at ASC
         LIMIT 1
       `;
 
-      image = await sql.queryFirstRow(imageQuery, [selectedCourseId]);
-    }
+      var image = await sql.queryFirstRow(imageQuery, [selectedCourseId, userId]);
 
-    if (!image) {
-      imageQuery = `
-        SELECT id, image_url, course_id, image_name FROM ${table_name} 
-        WHERE completed_at = '0000-00-00 00:00:00' AND advanced_type IS NULL AND is_unusable = 0 AND editor = ?
-        ORDER BY is_priority DESC, created_at ASC
-        LIMIT 1
-      `;
-
-      image = await sql.queryFirstRow(imageQuery, [userId]);
-
-      if (!image) {
+      if (image.length === 0) {
         imageQuery = `
           SELECT id, image_url, course_id, image_name FROM ${table_name} 
-          WHERE completed_at = '0000-00-00 00:00:00' AND advanced_type IS NULL AND is_unusable = 0 AND editor = 0
-          ORDER BY is_priority DESC, created_at ASC
+          WHERE completed_at = '0000-00-00 00:00:00' AND advanced_type IS NULL AND is_unusable=0 AND course_id = ? AND editor = 0
+          ORDER BY created_at ASC
           LIMIT 1
         `;
 
-        image = await sql.queryFirstRow(imageQuery);
+        image = await sql.queryFirstRow(imageQuery, [selectedCourseId]);
       }
-    }
-  } else {
-    imageQuery = `
-      SELECT id, image_url, course_id, image_name FROM ${table_name} 
-      WHERE completed_at = '0000-00-00 00:00:00' AND id NOT IN (?) AND advanced_type IS NULL AND is_unusable=0 AND course_id = ? AND editor = ?
-      ORDER BY created_at ASC
-      LIMIT 1
-    `;
 
-    let image = await sql.queryFirstRow(imageQuery, [session.skippedImages, selectedCourseId, userId]);
+      if (image.length === 0) {
+          imageQuery = `
+            SELECT id, image_url, course_id, image_name FROM ${table_name} 
+            WHERE completed_at = '0000-00-00 00:00:00' AND advanced_type IS NULL AND is_unusable = 0 AND editor = ?
+            ORDER BY is_priority DESC, created_at ASC
+            LIMIT 1
+          `;
 
-    if (!image) {
-      imageQuery = `
-        SELECT id, image_url, course_id, image_name FROM ${table_name} 
-        WHERE completed_at = '0000-00-00 00:00:00' AND id NOT IN (?) AND advanced_type IS NULL AND is_unusable=0 AND course_id = ? AND editor = 0
-        ORDER BY created_at ASC
-        LIMIT 1
-      `;
+          image = await sql.queryFirstRow(imageQuery, [userId]);
 
-      image = await sql.queryFirstRow(imageQuery, [session.skippedImages, selectedCourseId]);
-    }
+          if (image.length === 0) {
+            imageQuery = `
+              SELECT id, image_url, course_id, image_name FROM ${table_name} 
+              WHERE completed_at = '0000-00-00 00:00:00' AND advanced_type IS NULL AND is_unusable = 0 AND editor = 0
+              ORDER BY is_priority DESC, created_at ASC
+              LIMIT 1
+            `;
 
-    if (!image) {
-      imageQuery = `
-        SELECT id, image_url, course_id, image_name FROM ${table_name} 
-        WHERE completed_at = '0000-00-00 00:00:00' AND id NOT IN (?) AND advanced_type IS NULL AND is_unusable=0 AND editor = ?
-        ORDER BY is_priority DESC, created_at ASC
-        LIMIT 1
-      `;
+            image = await sql.queryFirstRow(imageQuery);
+          }
+      }
 
-      image = await sql.queryFirstRow(imageQuery, [session.skippedImages, userId]);
+      return image;
 
-      if (!image) {
+    } else {
         imageQuery = `
           SELECT id, image_url, course_id, image_name FROM ${table_name} 
-          WHERE completed_at = '0000-00-00 00:00:00' AND id NOT IN (?) AND advanced_type IS NULL AND is_unusable=0 AND editor = 0
-          ORDER BY is_priority DESC, created_at ASC
+          WHERE completed_at = '0000-00-00 00:00:00' AND id NOT IN (?) AND advanced_type IS NULL AND is_unusable=0 AND course_id = ? AND editor = ?
+          ORDER BY created_at ASC
           LIMIT 1
         `;
 
-        image = await sql.queryFirstRow(imageQuery, [session.skippedImages]);
-      }
-    }
-  }
+        var image = await sql.queryFirstRow(imageQuery, [session.skippedImages, selectedCourseId, userId]);
 
-  return image;
+        if (image.length === 0) {
+          imageQuery = `
+            SELECT id, image_url, course_id, image_name FROM ${table_name} 
+            WHERE completed_at = '0000-00-00 00:00:00' AND id NOT IN (?) AND advanced_type IS NULL AND is_unusable=0 AND course_id = ? AND editor = 0
+            ORDER BY created_at ASC
+            LIMIT 1
+          `;
+
+          image = await sql.queryFirstRow(imageQuery, [session.skippedImages, selectedCourseId]);
+        }
+
+        if (image.length === 0) {
+          imageQuery = `
+            SELECT id, image_url, course_id, image_name FROM ${table_name} 
+            WHERE completed_at = '0000-00-00 00:00:00' AND id NOT IN (?) AND advanced_type IS NULL AND is_unusable=0 AND editor = ?
+            ORDER BY is_priority DESC, created_at ASC
+            LIMIT 1
+          `;
+
+          image = await sql.queryFirstRow(imageQuery, [session.skippedImages, userId]);
+
+          if (image.length === 0) {
+            imageQuery = `
+              SELECT id, image_url, course_id, image_name FROM ${table_name} 
+              WHERE completed_at = '0000-00-00 00:00:00' AND id NOT IN (?) AND advanced_type IS NULL AND is_unusable=0 AND editor = 0
+              ORDER BY is_priority DESC, created_at ASC
+              LIMIT 1
+            `;
+
+            image = await sql.queryFirstRow(imageQuery, [session.skippedImages]);
+          }
+        }
+        
+        return image;
+    }
 }
 
 // Function to get an advanced image
-async function getAdvancedImage(advancedType, selectedCourseId, userId) {
+async function getAdvancedImage(advancedType, selectedCourseId, userId, session) {
   const table_name = 'at_image';
 
   let imageQuery;
@@ -267,9 +270,9 @@ async function getAdvancedImage(advancedType, selectedCourseId, userId) {
       LIMIT 1
     `;
 
-    let image = await sql.queryFirstRow(imageQuery, [advancedType, selectedCourseId, userId]);
+    var image = await sql.queryFirstRow(imageQuery, [advancedType, selectedCourseId, userId]);
 
-    if (!image) {
+    if (image.length === 0) {
       imageQuery = `
         SELECT id, image_url, course_id, image_name FROM ${table_name} 
         WHERE completed_at = '0000-00-00 00:00:00' AND advanced_type=? AND is_unusable=0 AND course_id = ? AND editor = 0
@@ -280,7 +283,7 @@ async function getAdvancedImage(advancedType, selectedCourseId, userId) {
       image = await sql.queryFirstRow(imageQuery, [advancedType, selectedCourseId]);
     }
 
-    if (!image) {
+    if (image.length === 0) {
       imageQuery = `
         SELECT id, image_url, course_id, image_name FROM ${table_name} 
         WHERE completed_at = '0000-00-00 00:00:00' AND advanced_type=? AND is_unusable=0 AND editor = ?
@@ -290,7 +293,7 @@ async function getAdvancedImage(advancedType, selectedCourseId, userId) {
 
       image = await sql.queryFirstRow(imageQuery, [advancedType, userId]);
 
-      if (!image) {
+      if (image.length === 0) {
         imageQuery = `
           SELECT id, image_url, course_id, image_name FROM ${table_name} 
           WHERE completed_at = '0000-00-00 00:00:00' AND advanced_type=? AND is_unusable=0 AND editor = 0
@@ -301,6 +304,8 @@ async function getAdvancedImage(advancedType, selectedCourseId, userId) {
         image = await sql.queryFirstRow(imageQuery, [advancedType]);
       }
     }
+    console.log(image)
+    return image;
   } else {
     imageQuery = `
       SELECT id, image_url, course_id, image_name FROM ${table_name} 
@@ -309,9 +314,9 @@ async function getAdvancedImage(advancedType, selectedCourseId, userId) {
       LIMIT 1
     `;
 
-    let image = await sql.queryFirstRow(imageQuery, [session.skippedImages, advancedType, selectedCourseId, userId]);
+    var image = await sql.queryFirstRow(imageQuery, [session.skippedImages, advancedType, selectedCourseId, userId]);
 
-    if (!image) {
+    if (image.length === 0) {
       imageQuery = `
         SELECT id, image_url, course_id, image_name FROM ${table_name} 
         WHERE completed_at = '0000-00-00 00:00:00' AND id NOT IN (?) AND advanced_type=? AND is_unusable=0 AND course_id = ? AND editor = 0
@@ -322,7 +327,7 @@ async function getAdvancedImage(advancedType, selectedCourseId, userId) {
       image = await sql.queryFirstRow(imageQuery, [session.skippedImages, advancedType, selectedCourseId]);
     }
 
-    if (!image) {
+    if (image.length === 0) {
       imageQuery = `
         SELECT id, image_url, course_id, image_name FROM ${table_name} 
         WHERE completed_at = '0000-00-00 00:00:00' AND id NOT IN (?) AND advanced_type=? AND is_unusable=0 AND editor = ?
@@ -332,7 +337,7 @@ async function getAdvancedImage(advancedType, selectedCourseId, userId) {
 
       image = await sql.queryFirstRow(imageQuery, [session.skippedImages, advancedType, userId]);
 
-      if (!image) {
+      if (image.length === 0) {
         imageQuery = `
           SELECT id, image_url, course_id, image_name FROM ${table_name} 
           WHERE completed_at = '0000-00-00 00:00:00' AND id NOT IN (?) AND advanced_type=? AND is_unusable=0 AND editor = 0
@@ -343,9 +348,8 @@ async function getAdvancedImage(advancedType, selectedCourseId, userId) {
         image = await sql.queryFirstRow(imageQuery, [session.skippedImages, advancedType]);
       }
     }
+    return image;
   }
-
-  return image;
 }
 
 // Function to get user by LMS ID
@@ -359,7 +363,7 @@ async function getUserByLmsId(lmsId) {
     lmsId
   );
 
-  if (!user) {
+  if (!user[0]) {
     return {
       success: false,
       message: 'user does not exist'
@@ -367,7 +371,7 @@ async function getUserByLmsId(lmsId) {
   } else {
     return {
       success: true,
-      user_id: user.id,
+      user_id: user[0].id,
       lms_id: lmsId
     };
   }
@@ -396,15 +400,13 @@ async function incrementImagesCompleted(userId) {
 }
 
 // Function to set image as completed
-async function setImageCompleted(imageId, altText, isDecorative, currentTime) {
-    const connection = await mysql.createConnection(dbConfig);
-  
+async function setImageCompleted(imageId, altText, isDecorative, currentTime) {  
     try {
-      const [image] = await connection.execute(
+      const image = await sql.queryFirstRow(
         'SELECT editor FROM at_image WHERE id=? LIMIT 1',
-        [imageId]
+        imageId
       );
-  
+
       if (!image || !image[0].editor) {
         return {
           success: false,
@@ -430,11 +432,11 @@ async function setImageCompleted(imageId, altText, isDecorative, currentTime) {
         `;
         updateParams = [altText, currentTime, imageId];
       }
-  
-      const [result] = await connection.execute(updateQuery, updateParams);
-  
+
+      const result = await sql.queryFirstRow(updateQuery, updateParams);
+
       if (result.affectedRows === 1) {
-        await incrementImagesCompleted(image[0].editor, connection);
+        await incrementImagesCompleted(image[0].editor);
         return {
           success: true,
           message: 'success!',
@@ -451,8 +453,6 @@ async function setImageCompleted(imageId, altText, isDecorative, currentTime) {
         success: false,
         message: 'An error occurred',
       };
-    } finally {
-      await connection.end();
     }
 }
 
@@ -489,13 +489,13 @@ async function imageExists(imageId) {
     const table_name = 'at_image';
   
     const image = await sql.queryFirstRow(
-      `SELECT 1 FROM ${table_name}
+      `SELECT * FROM ${table_name}
       WHERE id=?
       LIMIT 1`,
       imageId
     );
   
-    return !!(image && image.length > 0);
+    return (image && image.length > 0);
 }
 
 // Function to check if a course exists by ID
@@ -503,13 +503,13 @@ async function courseExists(courseId) {
     const table_name = 'at_course';
   
     const course = await sql.queryFirstRow(
-      `SELECT 1 FROM ${table_name}
-      WHERE id=?
+      `SELECT * FROM ${table_name}
+      WHERE id=${courseId}
       LIMIT 1`,
       courseId
     );
   
-    return !!(course && course.length > 0);
+    return (course && course.length > 0);
   }
 
   // Function to check if an image is completed by ID
@@ -522,11 +522,9 @@ async function imageIsCompleted(imageId) {
       LIMIT 1`,
       imageId
     );
-  
+    
     return (
-      image &&
-      image.completed_at !== '0000-00-00 00:00:00' &&
-      !is_null(image.completed_at)
+      image && image[0].completed_at !== '0000-00-00 00:00:00' && !(image.completed_at === null)
     );
 }
 
@@ -546,7 +544,7 @@ async function doesAltTextUpdatedUserExist(imageId) {
       `SELECT image_url FROM ${altTextTable}
       WHERE image_url=?
       LIMIT 1`,
-      imageUrl.image_url
+      imageUrl[0].image_url
     );
   
     return {
@@ -559,7 +557,7 @@ async function doesAltTextUpdatedUserExist(imageId) {
 async function updateAltTextUserName(imageUrl, userName, userUrl, email) {
     const table_name = 'at_alt_text';
   
-    const result = await sql.query(
+    const result = await sql.queryFirstRow(
       `UPDATE ${table_name}
       SET alttext_updated_user=?, user_url=?, email=?
       WHERE image_url=?`,
@@ -573,11 +571,11 @@ async function updateAltTextUserName(imageUrl, userName, userUrl, email) {
 async function updateAltTextUserNameComment(imageUrl, comment) {
     const table_name = 'at_alt_text';
   
-    const result = await sql.query(
+    const result = await sql.queryFirstRow(
       `UPDATE ${table_name}
-      SET feedback=?
-      WHERE image_url=?`,
-      [comment, imageUrl]
+        SET feedback=?
+        WHERE image_url=?`,
+        [comment, imageUrl]
     );
   
     return result;
@@ -586,7 +584,6 @@ async function updateAltTextUserNameComment(imageUrl, comment) {
 async function getImageName(lmsId, courseId) {
   try {
     const files = await canvas_service.curlGet(`courses/${courseId}/files/${lmsId}`);
-
     if (files === null) {
       return {
         error: true,
@@ -606,14 +603,14 @@ async function getImageName(lmsId, courseId) {
   }
 }
 
-async function createImage(image, isPriority) {
+async function createImage(image, isPriority, session) {
   try {
     const imageExists = await sql.queryFirstRow(
-      "SELECT 1 FROM at_image WHERE lms_id = ? LIMIT 1",
+      "SELECT * FROM at_image WHERE lms_id = ? LIMIT 1",
       [image.lmsId]
     );
 
-    if (!imageExists) {
+    if (imageExists.length === 0) {
       const canvasPage = image.canvas_page || "";
       const assignmentUrl = image.assignment_url || "";
       const topicUrl = image.topic_url || "";
@@ -621,15 +618,17 @@ async function createImage(image, isPriority) {
       const imageData = await getImageName(image.lmsId, image.courseId);
 
       await sql.createData('at_image', {
+        id: image.lmsId,
         lms_id: image.lmsId,
         course_id: image.courseId,
-        image_url: image.url,
+        image_url: `"${image.url}"`,
         is_priority: isPriority,
-        created_at: DateTime.local().toString(), 
-        canvas_page: canvasPage,
-        assignment_url: assignmentUrl,
-        topic_url: topicUrl,
-        image_name: imageData.display_name,
+        created_at: `"${DateTime.local().toString()}"`, 
+        canvas_page: `"${canvasPage}"`,
+        assignment_url: `"${assignmentUrl}"`,
+        topic_url: `"${topicUrl}"`,
+        image_name: `"${imageData.display_name}"`,
+        editor: 0
       });
 
       return true;
@@ -690,7 +689,7 @@ async function getCourseName(courseId) {
       [courseId]
     );
 
-    return course.course_name;
+    return course[0].course_name;
   } catch (error) {
     console.error(error);
     throw error;
@@ -820,10 +819,8 @@ async function createUser(lmsId, displayName) {
 
 async function createCourse(courseId, courseName) {
   try {
-    await sql.createData('at_course', {
-      id: courseId,
-      course_name: courseName
-    });
+    const insertQuery = `INSERT INTO at_course (id, course_name) VALUES (${courseId}, "${courseName}")`;
+    await sql.queryFirstRow(insertQuery, []);
   } catch (error) {
     console.error(error);
     throw error;
@@ -1001,12 +998,12 @@ async function setPushedToCanvas(imageId) {
   
       return imagesInUse;
     } catch (error) {
-      console.error(error);
+      console.log(error);
       throw error;
     }
   }
 
-function replaceImages(body, image, courseId) {
+  async function replaceImages(body, image, courseId) {
     const id = image.lms_id;
   
     // Extract each image tag that contains a link to the image and update it as needed
@@ -1304,7 +1301,6 @@ async function findCourseImages(images, courseId) {
         const response = await canvas_service.curlGet(bodyUrl);
         const body = response.body;
         const newImages = await findUsedImages(images, body, courseId, imagesInUse, bodyUrl, 'pages');
-        imagesInUse = imagesInUse.concat(newImages);
       }
     }
   
@@ -1316,7 +1312,6 @@ async function findCourseImages(images, courseId) {
           const body = assignment.description;
           const url = assignment.html_url.replace('https://usu.instructure.com/', '');
           const newImages = await findUsedImages(images, body, courseId, imagesInUse, url, 'assignment');
-          imagesInUse = imagesInUse.concat(newImages);
         }
       }
     }
@@ -1328,7 +1323,6 @@ async function findCourseImages(images, courseId) {
         const body = discussion.message;
         const url = discussion.html_url.replace('https://usu.instructure.com/', '');
         const newImages = await findUsedImages(images, body, courseId, imagesInUse, url, 'discussion');
-        imagesInUse = imagesInUse.concat(newImages);
       }
     }
   
@@ -1341,15 +1335,15 @@ async function findUsedImages(images, body, courseId, imagesInUse, value, type) 
     return [];
   }
 
-  const newImages = [];
   for (const image of images) {
     const id = image.lmsId;
 
     // Extract each image tag that contains a link to the image
-    const search = new RegExp(`(?<=)(?:[^< >]+courses/${courseId}/files/${id}[^< >]+)(?=<\\/?>)`, 'g');
+    const search = new RegExp(`<img[^>]*src=["'](?:https?:\\/\\/usu\\.instructure\\.com)?\\/courses\\/${courseId}\\/files\\/${id}[^"']*["'][^>]*>`, 'g');
     const fileNameSearch = /alt=["']([^"']+\.((jpeg|jpg|jpe|jif|jfif|jfi|png|gif|webp|tiff|tif|psd|raw|bmp|dib|heif|heic|ind|indd|indt|svg|svgz|ai|eps)\s*\.?))["']/i;
 
     const matches = body.match(search);
+
     if (matches) {
       let needsAltText = false;
 
@@ -1360,7 +1354,7 @@ async function findUsedImages(images, body, courseId, imagesInUse, value, type) 
         }
       }
 
-      if (needsAltText && !imageInArray(image, newImages) && !imageInArray(image, imagesInUse)) {
+      if (needsAltText && !(await imageInArray(image, imagesInUse))) {
         if (type === 'pages') {
           image.canvas_page = value || '';
         } else if (type === 'assignment') {
@@ -1369,8 +1363,7 @@ async function findUsedImages(images, body, courseId, imagesInUse, value, type) 
           image.topic_url = value || '';
         }
 
-        imagesInUse.push(image);
-      } else if (imageInArray(image, imagesInUse)) {
+      } else if (await imageInArray(image, imagesInUse)) {
         if (type === 'pages') {
           for (const element of imagesInUse) {
             if (element.url === image.url && 'canvas_page' in element) {
@@ -1418,16 +1411,17 @@ async function findUsedImages(images, body, courseId, imagesInUse, value, type) 
   return imagesInUse;
 }
 
-function imageInArray(image, imageArray) {
+async function imageInArray(image, imageArray) {
     for (const element of imageArray) {
       if (element.url === image.url) {
         return true;
       }
     }  
+
     return false;
 }
 
-function imageInBody(courseId, imageId, body) {
+async function imageInBody(courseId, imageId, body) {
     if (body === "") {
       return false;
     }
@@ -1437,15 +1431,15 @@ function imageInBody(courseId, imageId, body) {
 }
 
 // Validation functions
-function validateImageId(imageId) {
-    if (!/^[0-9]*$/.test(imageId) || parseInt(imageId) <= 0) {
+async function validateImageId(imageId) {
+    if (!(/^\d+$/.test(imageId)) || parseInt(imageId) <= 0) {
         const data = {
             error: true,
             message: 'invalid request body',
         };
 
         return data;
-    } else if (!Action.imageExists(imageId)) {
+    } else if (!await imageExists(imageId)) {
         const data = {
             error: true,
             message: 'image not found',
@@ -1453,9 +1447,10 @@ function validateImageId(imageId) {
 
         return data;
     }
+    return null;
 }
 
-function validateUserId(userId) {
+async function validateUserId(userId) {
     if (!/^[0-9]*$/.test(userId) || parseInt(userId) <= 0) {
         const data = {
             error: true,
@@ -1466,7 +1461,7 @@ function validateUserId(userId) {
         return data;
     }
 
-    if (!Action.userExists(userId)) {
+    if (!userExists(userId)) {
         const data = {
             error: true,
             no_images: false,
@@ -1475,9 +1470,11 @@ function validateUserId(userId) {
 
         return data
     }
+
+    return null;
 }
 
-function validateCourseId(courseId) {
+async function validateCourseId(courseId) {
     if (!/^[0-9]{6}$/.test(courseId)) {
         const data = {
             error: true,
@@ -1486,16 +1483,89 @@ function validateCourseId(courseId) {
 
         return data;
     }
+    
+    return null;
 }
 
-function validateAdvancedType(advancedType) {
+async function validateAdvancedType(advancedType) {
     // Assuming you have the array of advanced types available
     if (!ADVANCED_TYPES.includes(advancedType)) {
         const data = {
             error: true,
             message: 'invalid advanced type',
         };
-        Action.jsonResponse(data);
-        process.exit();
+
+        return data;
     }
+
+    return null;
+}
+
+module.exports = {
+  validateAdvancedType,
+  validateCourseId,
+  validateUserId,
+  validateImageId,
+  imageInBody,
+  imageInArray,
+  findUsedImages,
+  findCourseImages,
+  insertAltTextUser,
+  altTextUpdatedUser,
+  updateAltText,
+  getCourseNameCanvas,
+  getBody,
+  findUsagePages,
+  updateCourseImages,
+  updateQuizDescription,
+  updateDiscussion,
+  updateAssignment,
+  updatePage,
+  replaceImages,
+  getCourseImages,
+  incrementImagesCompleted,
+  setPushedToCanvas,
+  markImageAsUnusable,
+  markImageAsAdvanced,
+  getImageInfo,
+  resetImage,
+  createCourse,
+  createUser,
+  countAvailableImages,
+  countAdvancedImages,
+  countPublishedImages,
+  countCompletedImages,
+  updateNeedsConversion,
+  getNeedsToConversionStatus,
+  resetAlltheUsers,
+  countTotalImages,
+  getCourseName,
+  getCourseIds,
+  getCourseCompletedImages,
+  getCompletedImages,
+  createImage,
+  getImageName,
+  updateAltTextUserNameComment,
+  updateAltTextUserName,
+  doesAltTextUpdatedUserExist,
+  imageIsCompleted,
+  courseExists,
+  imageExists,
+  lmsIdExists,
+  userExists,
+  setImageCompleted,
+  incrementImagesCompleted,
+  getUserByLmsId,
+  getAdvancedImage,
+  getImage,
+  getActiveCourses,
+  getAltTextUpdatedUserInfo,
+  resetTestImages,
+  getLockStatus,
+  updateEditorId,
+  getTopicPage,
+  getAssignmentPage,
+  getDatabaseTables,
+  getCanvasPage,
+  testDB
 }

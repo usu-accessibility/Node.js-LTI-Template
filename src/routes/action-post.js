@@ -1,466 +1,491 @@
-const router = require('express').Router();
 const action = require('../controllers/main-controller');
 const middleware = require('../middlewares/authentication');
 
+module.exports = function(router, session){
 
-router.post('/health', function (req, res) {
-  console.log(req);
-  res.json(getHealth());
-  res.end();
-});
-
-router.post('/reset_users', (req, res) => {
-  const requestBody = req.body;
-
-  if (!requestBody || !requestBody.oauth_consumer_key) {
-    const data = {
-      error: true,
-      message: 'invalid request body',
+  async function htmlspecialchars(text) {
+    var map = {
+      '&': '&amp;',
+      '<': '&lt;',
+      '>': '&gt;',
+      '"': '&quot;',
+      "'": '&#039;'
     };
-    res.json(data);
+    
+    return text.replace(/[&<>"']/g, function(m) { return map[m]; });
   }
 
-  // Assuming Action.resetAlltheUsers() is a synchronous function
-  // If it's asynchronous, handle it accordingly (e.g., use async/await)
-  action.resetAlltheUsers();
-
-  // Send a success response if resetAlltheUsers() doesn't throw an error
-  const successData = {
-    success: true,
-    message: 'Users reset successfully',
-  };
-  res.json(successData);
-});
-
-router.post('/get_image_name', (req, res) => {
+  router.post('/reset_users', async (req, res) => {
     const requestBody = req.body;
-  
-    if (!requestBody || !requestBody.image_id) {
+
+    if (!requestBody || !('oauth_consumer_key' in requestBody)) {
       const data = {
         error: true,
         message: 'invalid request body',
       };
-      res.json(data);
+      return res.json(data);
     }
-  
-    // Assuming Action.getImageName() is a synchronous function
+
+    // Assuming Action.resetAlltheUsers() is a synchronous function
     // If it's asynchronous, handle it accordingly (e.g., use async/await)
-    const data = action.getImageName(requestBody.image_id);
-    res.json(data);
-});
+    await action.resetAlltheUsers();
 
+    // Send a success response if resetAlltheUsers() doesn't throw an error
+    const successData = {
+      success: true,
+      message: 'Users reset successfully',
+    };
 
-router.post('/get_database_tables', (req, res) => {
-    const requestBody = req.body;
-  
-    if (
-      !requestBody ||
-      !requestBody.table ||
-      !requestBody.oauth_consumer_key
-    ) {
-      const data = {
-        error: true,
-        message: 'invalid request body',
-      };
-      res.json(data);
-    }
-  
-    if (!(requestBody.oauth_consumer_key === process.env.CANVAS_ACCESS_TOKEN)) {
-      action.authorize();
-    }
-  
-    // Assuming Action.getDatabaseTables() is a synchronous function
-    // If it's asynchronous, handle it accordingly (e.g., use async/await)
-    const data = action.getDatabaseTables(requestBody.table);
-    res.json(data);
-});
+    return res.json(successData);
+  });
 
-router.post('/load_images', (req, res) => {
-    const requestBody = req.body;
-  
-    if (
-      (!requestBody || !requestBody.oauth_consumer_key) &&
-      (!requestBody ||
-        !requestBody.course_id ||
-        !requestBody.is_priority ||
-        typeof requestBody.is_priority !== 'boolean')
-    ) {
-      const data = {
-        error: true,
-        message: 'invalid request body',
-      };
-      res.json(data);
-    }
-  
-    if (requestBody.oauth_consumer_key !== process.env.CANVAS_ACCESS_TOKEN) {
-        return middleware.authorize(req, res);
-    }
-  
-    const courseId = requestBody.course_id;
-    action.validateCourseId(courseId);
-  
-    // Fetch the course name from the Canvas API and add the course to the courses table if it doesn't already exist
-    if (!action.courseExists(courseId)) {
-      const courseName = action.getCourseNameCanvas(courseId);
-      action.createCourse(courseId, courseName);
-    }
-  
-    const images = action.getCourseImages(courseId);
-  
-    if (images.error) {
-      const data = {
-        error: true,
-        message: images.message,
-      };
-      res.json(data);
-    }
-  
-    let errors = 0;
-    let imagesAdded = 0;
-  
-    for (const image of images) {
-      const success = action.createImage(image, requestBody.is_priority);
-      if (success) {
-        imagesAdded++;
-      } else {
-        errors++;
-      }
-    }
-  
-    if (errors === 0) {
-      const data = {
-        images_added: imagesAdded,
-      };
-      res.json(data);
-    } else {
-      const message =
-        errors === 1
-          ? 'additional image was found that is already in the database'
-          : 'additional images were found that are already in the database';
-      const data = {
-        images_added: imagesAdded,
-        message: `${errors} ${message}`,
-      };
-      res.json(data);
-    }
-});
-
-router.post('/get_alt_text_updated_user_name', (req, res) => {
-    // retrieve and validate the request body
-    const requestBody = req.body;
-  
-    if (!requestBody || !requestBody.image_url) {
-      const data = {
-        error: true,
-        message: 'invalid request body',
-      };
-      res.json(data);
-    }
-  
-    const imageUrl = requestBody.image_url;
-    const username = action.getAltTextUpdatedUserInfo(imageUrl);
-  
-    if (imageUrl === 'all') {
-        res.json(username);
-    } else {
+  router.post('/get_image_name', async (req, res) => {
+      const requestBody = req.body;
+      if (!requestBody || !('image_id' in requestBody)) {
         const data = {
-            username: username.alttext_updated_user,
-            userurl: username.user_url,
+          error: true,
+          message: 'invalid request body',
         };
-        res.json(data);
-    }
-});
 
-router.post('/set_image_completed', (req, res) => {
-    // retrieve and validate the request body
-    const requestBody = req.body;
-  
-    if (
-      !requestBody ||
-      !requestBody.image_id ||
-      !requestBody.alt_text ||
-      !requestBody.is_decorative ||
-      !requestBody.username ||
-      !requestBody.userurl ||
-      typeof requestBody.is_decorative !== 'boolean' ||
-      (requestBody.alt_text === '' && !requestBody.is_decorative)
-    ) {
-      const data = {
-        error: true,
-        message: 'invalid request body',
-      };
-      res.json(data);
-    }
-  
-    const imageId = requestBody.image_id;
-    action.validateImageId(imageId);
-  
-    if (action.imageIsCompleted(imageId)) {
-      const data = {
-        error: true,
-        message: 'image is already completed',
-      };
-      res.json(data);
-    }
-  
-    const isDecorative = requestBody.is_decorative;
-    const altText = isDecorative
-      ? null
-      : htmlspecialchars(requestBody.alt_text, 'ENT_QUOTES');
-    const currentTime = new Date();
-  
-    const image = action.doesAltTextUpdatedUserExist(requestBody.image_id);
-  
-    if (!is_null(image.image)) {
-        action.updateAltTextUserName(
-            image.image_url,
-            requestBody.username,
-            requestBody.userurl,
-            req.session.email_primary
-        );
-    } else {
-        action.insertAltTextUser(
-            image.image_url,
-            requestBody.username,
-            requestBody.userurl,
-            req.session.email_primary
-        );
-    }
-  
-    const status = action.setImageCompleted(
-      imageId,
-      altText,
-      isDecorative,
-      currentTime
-    );
-  
-    if (status.success) {
-      const data = {
-        image_id: imageId,
-        alt_text: altText,
-        is_decorative: isDecorative,
-        date_completed: currentTime,
-      };
-      res.json(data);
-    } else {
-      const data = {
-        error: true,
-        message: status.message,
-      };
-      res.json(data);
-    }
-});
-
-router.post('/push_image', (req, res) => {
-    // Authorize the request
-    middleware.authorize();
-  
-    // retrieve and validate the request body
-    const requestBody = req.body;
-  
-    if (!requestBody || !requestBody.course_id) {
-      const data = {
-        error: true,
-        message: 'invalid request body',
-      };
-      res.json(data);
-      return;
-    }
-  
-    const courseId = requestBody.course_id;
-    action.validateCourseId(courseId);
-  
-    const images = action.getCourseCompletedImages(courseId);
-    const needsConversion = action.getNeedsToConversionStatus(courseId);
-  
-    if (images === null || images.length === 0) {
-      const data = {
-        pushed_images: 0,
-        message: 'there are no images that are ready to be pushed back to canvas',
-      };
-      res.json(data);
-      return;
-    }
-  
-    let pushedImages = 0;
-    const failedImages = [];
-    const newPushedImages = action.updateCourseImages(images);
-    if (newPushedImages === -1) {
-      failedImages.push(images[0].course_id);
-    } else {
-      pushedImages += newPushedImages;
-    }
-  
-    const data = {
-      pushed_images: pushedImages,
-      needs_conversion: needsConversion,
-    };
-  
-    if (failedImages.length > 0) {
-      data.failed_image_ids = failedImages.join(', ');
-      data.message =
-        'images failing to push is usually caused by the course no longer existing in canvas';
-    }
-  
-    // Action.updateMondayBoard(courseId);
-    res.json(data);
-});
-
-router.post('/release_needs_conversion', (req, res) => {
-    // Authorize the request
-    action.authorize();
-  
-    // retrieve and validate the request body
-    const requestBody = req.body;
-  
-    if (!requestBody || !requestBody.course_id) {
-      const data = {
-        error: true,
-        message: 'invalid request body',
-      };
-      action.jsonResponse(data, res);
-      return;
-    }
-  
-    const courseId = requestBody.course_id;
-    const result = action.updateNeedsConversion(courseId);
-  
-    res.json(data);
-});
-
-router.post('/skip_image', (req, res) => {
-    // retrieve and validate the request body
-    const requestBody = req.body;
-  
-    if (!requestBody || !requestBody.image_id) {
-      const data = {
-        error: true,
-        message: 'invalid request body',
-      };
-      action.jsonResponse(data, res);
-      return;
-    }
-  
-    const imageId = requestBody.image_id;
-    action.validateImageId(imageId);
-  
-    req.session.skippedImages.push(imageId);
-  
-    action.resetImage(imageId);
-  
-    const data = {
-      error: false,
-    };
-    res.json(data);
-});
-
-router.post('/mark_image_as_advanced', (req, res) => {
-    // retrieve and validate the request body
-    const requestBody = req.body;
-  
-    if (!requestBody || !requestBody.image_id || !requestBody.advanced_type) {
-      const data = {
-        error: true,
-        message: 'invalid request body',
-      };
-      res.json(data);
-    }
-  
-    const imageId = requestBody.image_id;
-    action.validateImageId(imageId);
-  
-    const advancedType = requestBody.advanced_type;
-    action.validateAdvancedType(advancedType);
-  
-    action.markImageAsAdvanced(imageId, advancedType);
+        return res.json(data);
+      }
     
-    const data = {
-      error: false,
-    };
-    res.json(data);
-});
+      // Assuming Action.getImageName() is a synchronous function
+      // If it's asynchronous, handle it accordingly (e.g., use async/await)
+      const data = await action.getImageName(requestBody.image_id, requestBody.course_id);
+      return res.json(data);
+  });
 
-router.post('/update_image_alt_text', (req, res) => {
-    // retrieve and validate the request body
-    const requestBody = req.body;
-  
-    if (
-      !requestBody ||
-      !requestBody.image_url ||
-      !requestBody.new_alt_text ||
-      !requestBody.is_decorative
-    ) {
+
+  router.post('/get_database_tables', async (req, res) => {
+      const requestBody = req.body;
+    
+      if (
+        !requestBody ||
+        !('table' in requestBody) ||
+        !('oauth_consumer_key' in requestBody)
+      ) {
+        const data = {
+          error: true,
+          message: 'invalid request body',
+        };
+        return res.json(data);
+      }
+      
+      if (!(requestBody.oauth_consumer_key === process.env.CANVAS_ACCESS_TOKEN)) {
+        await middleware.authorize(res, session);
+      }
+    
+      // Assuming Action.getDatabaseTables() is a synchronous function
+      // If it's asynchronous, handle it accordingly (e.g., use async/await)
+      const data = await action.getDatabaseTables(requestBody.table);
+      return res.json(data);
+  });
+
+  router.post('/load_images', async (req, res) => {
+      const requestBody = req.body;
+    
+      if (
+        (!requestBody || !('oauth_consumer_key' in requestBody) ||
+          !('course_id' in requestBody) ||
+          !('is_priority' in requestBody) ||
+          typeof requestBody.is_priority !== 'boolean')
+      ) {
+        const data = {
+          error: true,
+          message: 'invalid request body',
+        };
+        return res.json(data);
+      }
+    
+      if (requestBody.oauth_consumer_key !== process.env.CANVAS_ACCESS_TOKEN) {
+        var isAuthorized = await middleware.authorize(res, session);
+        if(!isAuthorized){
+          return res.status(403).json({ error: "you don't have permission to access this resource" });
+        }
+      }
+    
+      const courseId = requestBody.course_id;
+      var isCourseIdValid = await action.validateCourseId(courseId);
+      if(isCourseIdValid !== null){
+        return isCourseIdValid;
+      }
+    
+      // Fetch the course name from the Canvas API and add the course to the courses table if it doesn't already exist
+      if (!await action.courseExists(courseId)) {
+        const courseName = await action.getCourseNameCanvas(courseId);
+        await action.createCourse(courseId, courseName);
+      }
+    
+      const images = await action.getCourseImages(courseId);
+
+      if (images.error) {
+        const data = {
+          error: true,
+          message: images.message,
+        };
+        return res.json(data);
+      }
+    
+      let errors = 0;
+      let imagesAdded = 0;
+    
+      for (const image of images) {
+        const success = await action.createImage(image, requestBody.is_priority, session);
+        if (success) {
+          imagesAdded++;
+        } else {
+          errors++;
+        }
+      }
+    
+      if (errors === 0) {
+        const data = {
+          images_added: imagesAdded,
+        };
+        return res.json(data);
+      } else {
+        const message =
+          errors === 1
+            ? 'additional image was found that is already in the database'
+            : 'additional images were found that are already in the database';
+        const data = {
+          images_added: imagesAdded,
+          message: `${errors} ${message}`,
+        };
+        return res.json(data);
+      }
+  });
+
+  router.post('/get_alt_text_updated_user_name', async (req, res) => {
+      // retrieve and validate the request body
+      const requestBody = req.body;
+    
+      if (!requestBody || !('image_url' in requestBody)) {
+        const data = {
+          error: true,
+          message: 'invalid request body',
+        };
+        return res.json(data);
+      }
+    
+      const imageUrl = requestBody.image_url;
+      const username = await action.getAltTextUpdatedUserInfo(imageUrl);
+    
+      if (imageUrl === 'all') {
+          return res.json(username);
+      } else {
+          const data = {
+              username: username.alttext_updated_user,
+              userurl: username.user_url,
+          };
+          return res.json(data);
+      }
+  });
+
+  router.post('/set_image_completed', async (req, res) => {
+      // retrieve and validate the request body
+      const requestBody = req.body;
+      console.log(requestBody)
+      if (
+        !requestBody ||
+        !('image_id' in requestBody) ||
+        !('alt_text' in requestBody) ||
+        !('is_decorative' in requestBody) ||
+        !('username' in requestBody) ||
+        !('userurl' in requestBody) ||
+        typeof requestBody.is_decorative !== 'boolean' ||
+        (requestBody.alt_text === '' && !requestBody.is_decorative)
+      ) {
+        const data = {
+          error: true,
+          message: 'invalid request body',
+        };
+        return res.json(data);
+      }
+    
+      const imageId = requestBody.image_id;
+
+      var validateImageId = await action.validateImageId(imageId);
+      if( validateImageId !== null){
+        return res.json(validateImageId);
+      }
+
+    
+      if (await action.imageIsCompleted(imageId)) {
+        const data = {
+          error: true,
+          message: 'image is already completed',
+        };
+        return res.json(data);
+      }
+    
+      const isDecorative = requestBody.is_decorative;
+      const altText = isDecorative
+        ? null
+        : await htmlspecialchars(requestBody.alt_text);
+
+      const currentTime = new Date();
+    
+      const image = await action.doesAltTextUpdatedUserExist(requestBody.image_id);
+    
+      if (!(image.image === null)) {
+          await action.updateAltTextUserName(
+              image.image_url,
+              requestBody.username,
+              requestBody.userurl,
+              req.session.email_primary
+          );
+      } else {
+          await action.insertAltTextUser(
+              image.image_url,
+              requestBody.username,
+              requestBody.userurl,
+              req.session.email_primary
+          );
+      }
+    
+      const status = await action.setImageCompleted(
+        imageId,
+        altText,
+        isDecorative,
+        currentTime
+      );
+    
+      if (status.success) {
+        const data = {
+          image_id: imageId,
+          alt_text: altText,
+          is_decorative: isDecorative,
+          date_completed: currentTime,
+        };
+        return res.json(data);
+      } else {
+        const data = {
+          error: true,
+          message: status.message,
+        };
+        return res.json(data);
+      }
+  });
+
+  router.post('/push_image', async (req, res) => {
+      // Authorize the request
+      await middleware.authorize(res, session);
+    
+      // retrieve and validate the request body
+      const requestBody = req.body;
+    
+      if (!requestBody || !('course_id' in requestBody)) {
+        const data = {
+          error: true,
+          message: 'invalid request body',
+        };
+        return res.json(data);
+        return;
+      }
+    
+      const courseId = requestBody.course_id;
+      await action.validateCourseId(courseId);
+    
+      const images = await action.getCourseCompletedImages(courseId);
+      const needsConversion = await action.getNeedsToConversionStatus(courseId);
+    
+      if (images === null || images.length === 0) {
+        const data = {
+          pushed_images: 0,
+          message: 'there are no images that are ready to be pushed back to canvas',
+        };
+        return res.json(data);
+        return;
+      }
+    
+      let pushedImages = 0;
+      const failedImages = [];
+      const newPushedImages = await action.updateCourseImages(images);
+      if (newPushedImages === -1) {
+        failedImages.push(images[0].course_id);
+      } else {
+        pushedImages += newPushedImages;
+      }
+    
       const data = {
-        error: true,
-        message: 'invalid request body',
+        pushed_images: pushedImages,
+        needs_conversion: needsConversion,
       };
-      res.json(data);
-    }
-  
-    const data = action.updateAltText(
-      requestBody.image_url,
-      requestBody.new_alt_text,
-      requestBody.is_decorative
-    );
-  
-    res.json(data);
-});
+    
+      if (failedImages.length > 0) {
+        data.failed_image_ids = failedImages.join(', ');
+        data.message =
+          'images failing to push is usually caused by the course no longer existing in canvas';
+      }
+    
+      // Action.updateMondayBoard(courseId);
+      return res.json(data);
+  });
 
-router.post('/update_user_alt_text', (req, res) => {
-    // retrieve and validate the request body
-    const requestBody = req.body;
-  
-    if (
-      !requestBody ||
-      !requestBody.image_url ||
-      !requestBody.new_user ||
-      !requestBody.user_url
-    ) {
+  router.post('/release_needs_conversion', async (req, res) => {
+      // Authorize the request
+      await middleware.authorize(res, session);
+    
+      // retrieve and validate the request body
+      const requestBody = req.body;
+    
+      if (!requestBody || !('course_id' in requestBody)) {
+        const data = {
+          error: true,
+          message: 'invalid request body',
+        };
+        await action.jsonResponse(data, res);
+        return;
+      }
+    
+      const courseId = requestBody.course_id;
+      const result = await action.updateNeedsConversion(courseId);
+    
+      return res.json(data);
+  });
+
+  router.post('/skip_image', async (req, res) => {
+      // retrieve and validate the request body
+      const requestBody = req.body;
+    
+      if (!requestBody || !('image_id' in requestBody)) {
+        const data = {
+          error: true,
+          message: 'invalid request body',
+        };
+        await action.jsonResponse(data, res);
+        return;
+      }
+    
+      const imageId = requestBody.image_id;
+
+      var validateImageId = await action.validateImageId(imageId);
+      if( validateImageId !== null){
+        return validateImageId;
+      }
+    
+      req.session.skippedImages.push(imageId);
+    
+      await action.resetImage(imageId);
+    
       const data = {
-        error: true,
-        message: 'invalid request body',
+        error: false,
       };
-      res.json(data);
-    }
-  
-    const data = action.updateAltTextUserName(
-      requestBody.image_url,
-      requestBody.new_user,
-      requestBody.user_url
-    );
-  
-    res.json(data);
-});
+      return res.json(data);
+  });
 
+  router.post('/mark_image_as_advanced', async (req, res) => {
+      // retrieve and validate the request body
+      const requestBody = req.body;
+    
+      if (!requestBody || !('image_id' in requestBody) || !('advanced_type' in requestBody)) {
+        const data = {
+          error: true,
+          message: 'invalid request body',
+        };
+        return res.json(data);
+      }
+    
+      const imageId = requestBody.image_id;
 
-router.post('/mark_image_as_unusable', (req, res) => {
-    // retrieve and validate the request body
-    const requestBody = req.body;
-  
-    if (!requestBody || !requestBody.image_id) {
+      var validateImageId = await action.validateImageId(imageId);
+      if( validateImageId !== null){
+        return validateImageId;
+      }
+    
+      const advancedType = requestBody.advanced_type;
+      await action.validateAdvancedType(advancedType);
+    
+      await action.markImageAsAdvanced(imageId, advancedType);
+      
       const data = {
-        error: true,
-        message: 'invalid request body',
+        error: false,
       };
-      res.json(data);
-    }
-  
-    if (!action.imageExists(requestBody.image_id)) {
+      return res.json(data);
+  });
+
+  router.post('/update_image_alt_text', async (req, res) => {
+      // retrieve and validate the request body
+      const requestBody = req.body;
+    
+      if (
+        !requestBody ||
+        !('image_url' in requestBody) ||
+        !('new_alt_text' in requestBody) ||
+        !('is_decorative' in requestBody)
+      ) {
+        const data = {
+          error: true,
+          message: 'invalid request body',
+        };
+        return res.json(data);
+      }
+    
+      const data = await action.updateAltText(
+        requestBody.image_url,
+        requestBody.new_alt_text,
+        requestBody.is_decorative
+      );
+    
+      return res.json(data);
+  });
+
+  router.post('/update_user_alt_text', async (req, res) => {
+      // retrieve and validate the request body
+      const requestBody = req.body;
+    
+      if (
+        !requestBody ||
+        !('image_url' in requestBody) ||
+        !('new_user' in requestBody) ||
+        !('user_url' in requestBody)
+      ) {
+        const data = {
+          error: true,
+          message: 'invalid request body',
+        };
+        return res.json(data);
+      }
+    
+      const data = await action.updateAltTextUserName(
+        requestBody.image_url,
+        requestBody.new_user,
+        requestBody.user_url
+      );
+    
+      return res.json(data);
+  });
+
+
+  router.post('/mark_image_as_unusable', async (req, res) => {
+      // retrieve and validate the request body
+      const requestBody = req.body;
+    
+      if (!requestBody || !('image_id' in requestBody)) {
+        const data = {
+          error: true,
+          message: 'invalid request body',
+        };
+        return res.json(data);
+      }
+    
+      if (!await action.imageExists(requestBody.image_id)) {
+        const data = {
+          error: true,
+          message: "image id doesn't exist",
+        };
+        return res.json(data);
+      }
+    
+      const courseId = await action.markImageAsUnusable(requestBody.image_id);
       const data = {
-        error: true,
-        message: "image id doesn't exist",
+        error: false,
+        image_id: requestBody.image_id,
+        course_id: courseId,
       };
-      res.json(data);
-    }
-  
-    const courseId = action.markImageAsUnusable(requestBody.image_id);
-    const data = {
-      error: false,
-      image_id: requestBody.image_id,
-      course_id: courseId,
-    };
-    res.json(data);
-});
+      return res.json(data);
+  });
+}
 
-
-module.exports = router;

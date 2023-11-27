@@ -8,37 +8,58 @@ var connection = mysql.createConnection({
 });
 
 async function connectToDatabase(){
-  connection.connect(function(err) {
-    if (err) throw err;
-    console.log("Connected!");
-  });
+  return new Promise((resolve, reject) => {
+    connection.connect(function(err, results) {
+      if (err){
+        reject(err);
+        return;
+      }
+      console.log('Connected');
+      resolve(results);
+    });
+  })
 }
 
 async function queryFirstRow(query, values){
-  connection.query(query, values, (error, results, fields) => {
-    if (error) {
-      return console.error(error.message);
-    }
-    console.log(results);
-  });
+  return new Promise((resolve, reject) => {
+    connection.query(query, values, (err, results, fields) => {
+      if (err){
+        reject(err);
+        return;
+      }
+      console.log('Data inserted successfully.');
+      console.log(query);
+      resolve(results);
+    });
+  })
 }
 
 // CREATE operation
 async function createData(table_name, rows) {
-  var column_key = "";
-  var column_value = "";
+    var column_key = "";
+    var column_value = "";
 
-  for (const [key, value] of Object.entries(rows)) {
-    column_key += `${key} `;
-    column_value += `${value} `;
-  }
+    for (const [key, value] of Object.entries(rows)) {
+      column_key += `${key}, `;
+      column_value += `${value}, `;
+    }
 
-  const sql = `INSERT INTO ${table_name} (${column_key}) VALUES (${column_value})`;
+    column_key = column_key.slice(0, column_key.length - 2);
+    column_value = column_value.slice(0, column_value.length - 2);
 
-  connection.query(sql, (err, results) => {
-    if (err) throw err;
-    console.log('Data inserted successfully.');
-  });
+    const sql = `INSERT INTO ${table_name} (${column_key}) VALUES (${column_value})`;
+
+    return new Promise((resolve, reject) => {
+      connection.query(sql, (err, results) => {
+        if (err){
+          reject(err);
+          return;
+        }
+        console.log('Data inserted successfully.');
+        console.log(sql);
+        resolve(results);
+      });
+      });
 }
 
 // READ operation
@@ -46,27 +67,32 @@ async function readData(table_name, ...columns) {
   const column_values = columns.join(" ");
   const sql = `SELECT ${column_values} FROM ${table_name}`;
 
-  connection.query(sql, (err, results) => {
-    if (err){
-      return err;
-    }
-    console.log('Data retrieved successfully:', results);
-    return results;
-  });
+  return new Promise((resolve, reject) => {
+    connection.query(sql, (err, results) => {
+      if (err){
+        reject(err);
+        return;
+      }
+      console.log('Data read successfully.');
+      resolve(results);
+    });
+  })
 }
 
 // READ on condition operation
 async function readDataOnCondition(table_name, id, id_value, ...columns) {
   const column_values = columns.join(" ");
   const sql = `SELECT ${column_values} FROM ${table_name} WHERE ${id} = ${id_value}`;
-
-  connection.query(sql, (err, results) => {
-    if (err){
-      return err;
-    }
-    console.log('Data retrieved successfully:', results);
-    return results;
-  });
+  return new Promise((resolve, reject) => {
+    connection.query(sql, (err, results) => {
+      if (err){
+        reject(err);
+        return;
+      }
+      console.log('Data read successfully.');
+      resolve(results);
+    });
+  })
 }
 
 // UPDATE operation
@@ -83,27 +109,32 @@ async function updateData(table_name, id, id_value, values) {
   else {
     var sql = `UPDATE ${table_name} SET ${column_values} WHERE ${id} = ${id_value}`;
   }
-
-  connection.query(sql, (err, results) => {
-    if (err){
-      return err;
-    }
-    console.log('Data updated successfully.');
-    return results;
-  });
+  return new Promise((resolve, reject) => {
+    connection.query(sql, (err, results) => {
+      if (err){
+        reject(err);
+        return;
+      }
+      console.log('Data updated successfully.');
+      resolve(results);
+    });
+  })
 }
 
 // DELETE operation
 async function deleteData(table_name, id, id_value) {
   const sql =  `DELETE FROM ${table_name} WHERE ${id} = ${id_value}`;
-
-  connection.query(sql, [id], (err, results) => {
-    if (err){
-      return err;
-    }
-    console.log('Data deleted successfully.');
-    return results;
-  });
+  
+  return new Promise((resolve, reject) => {
+    connection.query(sql, [id], (err, results) => {
+      if (err){
+        reject(err);
+        return;
+      }
+      console.log('Data deleted successfully.');
+      resolve(results);
+    });
+  })
 }
 
 module.exports = {
@@ -111,5 +142,7 @@ module.exports = {
   readData,
   updateData,
   deleteData,
-  connectToDatabase
+  connectToDatabase,
+  queryFirstRow,
+  readDataOnCondition
 }

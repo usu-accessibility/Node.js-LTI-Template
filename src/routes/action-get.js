@@ -1,319 +1,344 @@
-const router = require('express').Router();
 const action = require('../controllers/main-controller');
+const sql = require('../services/sql-service');
 
-const postRoutes = require('./action-post');
+module.exports = function(router, session){
 
-router.use(postRoutes);
+    router.get('/', async (req, res) => {
+        return res.json(getHealth());
+    });
 
-router.get('/', function (req, res) {
-  res.json(getHealth());
-});
+    router.get('/get_user_details', async (req, res) => {
+    const userdetails = {
+        username: session.canvas_data.name_given,
+        userimage: session.canvas_data.user_image,
+        role: session.canvas_data.role
+    };
 
-router.get('/get_user_details', (req, res) => {
-  const userdetails = {
-      username: req.session.name_given,
-      userimage: req.session.user_image,
-      role: req.session.role
-  };
+    return res.json(userdetails);
+    });
 
-  res.json(userdetails);
-});
+    router.get('/get_active_courses', async (req, res) => {
+        const user = await action.getUserByLmsId(session.canvas_data.userID);
+        console.log("hello world");
+        console.log(user);
+        if (user.success) {
+            const userId = user.user_id;
 
-router.get('/get_active_courses', (req, res) => {
-  const user = action.getUserByLmsId(req.session.userID);
+            const advancedType = req.query.advanced_type || "";
 
-  if (user.success) {
-      const userId = user.user_id;
+            const courses = [];
+            const courseList = await action.getActiveCourses(userId, advancedType);
 
-      const advancedType = req.query.advanced_type || "";
+            for(var idx = 0; idx < courseList.length; idx++){
+                var element = courseList[idx];
+                const courseId = element.course_id;
+                const courseName = await action.getCourseName(courseId);
+                courses.push({ id: courseId, course_name: courseName });
+                console.log({ id: courseId, course_name: courseName })
+            }
 
-      const courses = [];
-      const courseList = action.getActiveCourses(userId, advancedType);
+            // await courseList.forEach(async (element) => {
+            //     const courseId = element.course_id;
+            //     const courseName = await action.getCourseName(courseId);
+            //     courses.push({ id: courseId, course_name: courseName });
+            //     console.log({ id: courseId, course_name: courseName })
+            // });
 
-      courseList.forEach((element) => {
-          const courseId = element.course_id;
-          const courseName = action.getCourseName(courseId);
-          courses.push({ id: courseId, course_name: courseName });
-      });
+            console.log("value");
+            console.log(courses);
+            return res.json(courses);
+        } else {
+            const data = {
+                error: true,
+                no_images: false,
+                message: 'lms id does not exist',
+            };
 
-      res.json(courses);
-  } else {
-      const data = {
-          error: true,
-          no_images: false,
-          message: 'lms id does not exist',
-      };
+            return res.json(data);
+        }
+    });
 
-      res.json(data);
-  }
-});
+    // const performTask = async (value) => {
+    //   const startTime = Date.now();
 
-// const performTask = async (value) => {
-//   const startTime = Date.now();
+    //   while (true) {
+    //       if (Date.now() - startTime > 300000) {
+    //           return false; // timeout, function took longer than 300 seconds
+    //       }
+    //   }
+    // };
 
-//   while (true) {
-//       if (Date.now() - startTime > 300000) {
-//           return false; // timeout, function took longer than 300 seconds
-//       }
-//   }
-// };
+    router.get('/update_course_id', async (req, res) => {
+        const user = await action.getUserByLmsId(session.canvas_data.userID); // Assuming session data is available
 
-router.get('/update_course_id', async (req, res) => {
-  const user = action.getUserByLmsId(req.session.userID); // Assuming session data is available
+        console.log(user);
+        if (user.success) {
+            const userId = user.user_id;
 
-  if (user.success) {
-      const userId = user.user_id;
+            if (req.query.lock) {
+                const editorValue = await sql.queryFirstRow(
+                    "SELECT editor FROM at_image WHERE id = ?",
+                    [req.query.image_id]
+                );
 
-      if (req.query.lock) {
-          const editorValue = await queryDatabase(
-              "SELECT editor FROM at_image WHERE id = $1",
-              [req.query.image_id]
-          );
+                if (editorValue.length !== 0 && editorValue[0].editor !== 0 && editorValue[0].editor !== userId) {
+                    const data = {
+                        error: "Image has been locked by another user. Loading next image.",
+                    };
+                    return res.json(data);
+                } else {
+                    var result = await action.updateEditorId(userId, req.query.image_id, req.query.lock);
 
-          if (editorValue.length !== 0 && editorValue[0].editor !== 0 && editorValue[0].editor !== userId) {
-              const data = {
-                  error: "Image has been locked by another user. Loading next image.",
-              };
-              res.json(data);
-          } else {
-              await action.updateEditorId(userId, req.query.image_id, req.query.lock);
+                    // Assuming you want to perform a task after updating the editor ID
+                    // const result = performTask(/* pass relevant value */);
 
-              // Assuming you want to perform a task after updating the editor ID
-              // const result = performTask(/* pass relevant value */);
+                    if (result) {
+                        return res.json({ success: true });
+                    } else {
+                        return res.json({ error: "Task timed out." });
+                    }
+                }
+            }
+        } else {
+            const data = {
+                error: true,
+                no_images: false,
+                message: 'lms id does not exist',
+            };
+            return res.json(data);
+        }
+    });
 
-              if (result) {
-                  res.json({ success: true });
-              } else {
-                  res.json({ error: "Task timed out." });
-              }
-          }
-      }
-  } else {
-      const data = {
-          error: true,
-          no_images: false,
-          message: 'lms id does not exist',
-      };
-      res.json(data);
-  }
-});
+    router.get('/get_lock_status', async (req, res) => {
+        const user = await action.getUserByLmsId(session.canvas_data.userID); // Assuming session data is available
 
-router.get('/get_lock_status', async (req, res) => {
-  const user = action.getUserByLmsId(req.session.userID); // Assuming session data is available
+        if (user.success) {
+            const userId = user.user_id;
 
-  if (user.success) {
-      const userId = user.user_id;
+            // Assuming you want to get image_id from the request parameters
+            const imageId = req.query.image_id;
 
-      // Assuming you want to get image_id from the request parameters
-      const imageId = req.query.image_id;
+            const data = await action.getLockStatus(userId, imageId);
 
-      const data = await action.getLockStatus(userId, imageId);
+            // Send the lock status as a JSON response
+            return res.json({
+                locked: data.length === 0 ? false : data[0].editor == userId,
+            });
+        } else {
+            const data = {
+                error: true,
+                no_images: false,
+                message: 'lms id does not exist',
+            };
+            return res.json(data);
+        }
+    });
 
-      // Send the lock status as a JSON response
-      res.json({
-          locked: data.length === 0 ? false : data[0].editor == userId,
-      });
-  } else {
-      const data = {
-          error: true,
-          no_images: false,
-          message: 'lms id does not exist',
-      };
-      res.json(data);
-  }
-});
+    router.get('/get_image', async (req, res) => {
+        const user = await action.getUserByLmsId(session.canvas_data.userID); // Assuming session data is available
 
-router.get('/get_image', (req, res) => {
-  const user = action.getUserByLmsId(req.session.userID); // Assuming session data is available
+        if (user.success) {
+            const userId = user.user_id;
 
-  if (user.success) {
-      const userId = user.user_id;
+            var validateUserId = await action.validateUserId(userId);
+            
+            if(validateUserId !== null){
+                return res.json(validateUserId);
+            }
 
-      action.validateUserId(userId);
+            const selectedCourseId = req.query.selectedCourse || 0;
 
-      const selectedCourseId = req.query.selectedCourse || 0;
+            var image;
 
-      let image;
+            if (req.query.advanced_type) {
+                var isValidateAdvancedType = await action.validateAdvancedType(req.query.advanced_type);
 
-      if (req.query.advanced_type) {
-          action.validateAdvancedType(req.query.advanced_type);
-          image = action.getAdvancedImage(req.query.advanced_type, selectedCourseId, userId);
-      } else {
-          image = action.getImage(selectedCourseId, userId);
-      }
+                if(isValidateAdvancedType !== null){
+                    return res.json(isValidateAdvancedType);
+                }
 
-      if (!image) {
-          const data = {
-              error: true,
-              no_images: true,
-              message: 'no images in queue',
-          };
-          res.json(data);
-      } else {
-          const courseName = action.getCourseName(image.course_id);
+                console.log("advenced types");
+                console.log(req.query.advanced_type);
 
-          const data = {
-              image_id: image.id,
-              url: image.image_url,
-              course_name: courseName,
-              image_name: image.image_name,
-          };
+                image = await action.getAdvancedImage(req.query.advanced_type, selectedCourseId, userId, session);
+            } else {
+                image = await action.getImage(selectedCourseId, userId, session);
+            }
 
-          res.json(data);
-      }
-  } else {
-      const data = {
-          error: true,
-          no_images: false,
-          message: 'lms id does not exist',
-      };
-      res.json(data);
-  }
-});
+            if (image.length === 0) {
+                const data = {
+                    error: true,
+                    no_images: true,
+                    message: 'no images in queue',
+                };
+                return res.json(data);
+            } else {
+                const courseName = await action.getCourseName(image[0].course_id);
 
-router.get('/get_courses_info', (req, res) => {
-  const courseIds = action.getCourseIds();
-  const data = [];
+                const data = {
+                    image_id: image[0].id,
+                    url: image[0].image_url,
+                    course_name: courseName,
+                    image_name: image[0].image_name,
+                };
 
-  courseIds.forEach((courseId) => {
-      const courseName = action.getCourseName(courseId);
-      const totalImages = action.countTotalImages(courseId);
-      const completedImages = action.countCompletedImages(courseId);
-      const publishedImages = action.countPublishedImages(courseId);
-      const advancedImages = action.countAdvancedImages(courseId);
-      const availableImages = action.countAvailableImages(courseId);
+                return res.json(data);
+            }
+        } else {
+            const data = {
+                error: true,
+                no_images: false,
+                message: 'lms id does not exist',
+            };
+            return res.json(data);
+        }
+    });
 
-      data.push({
-          id: courseId,
-          name: courseName,
-          total_images: totalImages,
-          completed_images: completedImages,
-          published_images: publishedImages,
-          advanced_images: advancedImages,
-          available_images: availableImages,
-      });
-  });
+    router.get('/get_courses_info', async (req, res) => {
+        const courseIds = action.getCourseIds();
+        const data = [];
 
-  // Send the data as a JSON response
-  res.json(data);
-});
+        courseIds.forEach((courseId) => {
+            const courseName = action.getCourseName(courseId);
+            const totalImages = action.countTotalImages(courseId);
+            const completedImages = action.countCompletedImages(courseId);
+            const publishedImages = action.countPublishedImages(courseId);
+            const advancedImages = action.countAdvancedImages(courseId);
+            const availableImages = action.countAvailableImages(courseId);
 
-router.get('/get_completed_images', (req, res) => {
-  const courseId = req.query.course_id;
+            data.push({
+                id: courseId,
+                name: courseName,
+                total_images: totalImages,
+                completed_images: completedImages,
+                published_images: publishedImages,
+                advanced_images: advancedImages,
+                available_images: availableImages,
+            });
+        });
 
-  if (courseId) {
-      const completedImages = action.getCourseCompletedImages(courseId);
+        // Send the data as a JSON response
+        return res.json(data);
+    });
 
-      if (completedImages === null) {
-          const data = {
-              message: 'There are no completed images for this course',
-          };
-          res.json(data);
-      } else {
-          const data = completedImages.map((image) => ({
-              image_url: image.image_url,
-              alt_text: image.alt_text,
-              image_id: image.id,
-              is_decorative: image.is_decorative === 1 ? true : false,
-              image_name: image.image_name,
-              course_id: image.course_id,
-          }));
+    router.get('/get_completed_images', async (req, res) => {
+        const courseId = req.query.course_id;
 
-          // Send the data as a JSON response
-          res.json(data);
-      }
-  } else {
-      const data = {
-          error: true,
-          message: 'course_id not set',
-      };
-      res.json(data);
-  }
-});
+        if (courseId) {
+            const completedImages = action.getCourseCompletedImages(courseId);
 
-router.get('/get_image_usage', (req, res) => {
-  if (req.query.image_id) {
-      const imageId = req.query.image_id;
+            if (completedImages === null) {
+                const data = {
+                    message: 'There are no completed images for this course',
+                };
+                return res.json(data);
+            } else {
+                const data = completedImages.map((image) => ({
+                    image_url: image.image_url,
+                    alt_text: image.alt_text,
+                    image_id: image.id,
+                    is_decorative: image.is_decorative === 1 ? true : false,
+                    image_name: image.image_name,
+                    course_id: image.course_id,
+                }));
 
-      try {
-          action.validateImageId(imageId);
+                // Send the data as a JSON response
+                return res.json(data);
+            }
+        } else {
+            const data = {
+                error: true,
+                message: 'course_id not set',
+            };
+            return res.json(data);
+        }
+    });
 
-          const image = action.getImageInfo(imageId);
-          const courseId = image.course_id;
-          const imageLmsId = image.lms_id;
+    router.get('/get_image_usage', async (req, res) => {
+        if (req.query.image_id) {
+            const imageId = req.query.image_id;
 
-          const foundPageIds = action.findUsagePages(imageLmsId, courseId);
+            try {
+                await action.validateImageId(imageId);
 
-          const data = {
-              image_id: imageLmsId,
-              course_id: courseId,
-              pages: foundPageIds.join(', '),
-          };
+                const image = await action.getImageInfo(imageId);
+                const courseId = image[0].course_id;
+                const imageLmsId = image[0].lms_id;
 
-          // Send the data as a JSON response
-          res.json(data);
-      } catch (error) {
-          const data = {
-              error: true,
-              message: error.message,
-          };
-          res.json(data);
-      }
-  } else {
-      const data = {
-          error: true,
-          message: 'invalid parameters',
-      };
-      res.json(data);
-  }
-});
+                const foundPageIds = await action.findUsagePages(imageLmsId, courseId);
 
-router.get('/get_body', (req, res) => {
-  if (req.query.page_url) {
-      const pageUrl = req.query.page_url;
-      const body = action.getBody(pageUrl);
+                const data = {
+                    image_id: imageLmsId,
+                    course_id: courseId,
+                    pages: foundPageIds.join(', '),
+                };
 
-      // Send the body content as a JSON response
-      res.json({ body });
-  } else {
-      const data = {
-          error: true,
-          message: 'page_url not set',
-      };
-      res.json(data);
-  }
-});
+                // Send the data as a JSON response
+                return res.json(data);
+            } catch (error) {
+                const data = {
+                    error: true,
+                    message: error.message,
+                };
 
-router.get('/count_completed_images', (req, res) => {
-  const completedImageCount = action.getCompletedImages().length;
-  const data = { completed_image_count: completedImageCount };
-  res.json(data);
-});
+                return res.json(data);
+            }
+        } else {
+            const data = {
+                error: true,
+                message: 'invalid parameters',
+            };
 
-router.get('/is_admin', (req, res) => {
-  const isAdmin = req.session.admin || false;
-  const data = { is_admin: isAdmin };
-  res.json(data);
-});
+            return res.json(data);
+        }
+    });
 
-router.get('/test', (req, res) => {
-  const testResult = action.testDb();
-  const data = { test: testResult };
-  res.json(data);
-});
+    router.get('/get_body', async (req, res) => {
+        if (req.query.page_url) {
+            const pageUrl = req.query.page_url;
+            const body = await action.getBody(pageUrl);
 
-router.get('/reset_test_images', (req, res) => {
-  req.session.skippedImages = [];
-  action.resetTestImages();
-  const data = { done: true };
-  res.json(data);
-});
+            // Send the body content as a JSON response
+            return res.json({ body });
+        } else {
+            const data = {
+                error: true,
+                message: 'page_url not set',
+            };
 
-function getHealth() {
-  return {
-    ok: true,
-    message: 'Healthy',
-  };
+            return res.json(data);
+        }
+    });
+
+    router.get('/count_completed_images', async (req, res) => {
+        const completedImageCount = action.getCompletedImages().length;
+        const data = { completed_image_count: completedImageCount };
+        return res.json(data);
+        });
+
+        router.get('/is_admin', async (req, res) => {
+        const isAdmin = session.at_admin || false;
+        const data = { is_admin: isAdmin };
+        return res.json(data);
+        });
+
+        router.get('/test', async (req, res) => {
+        const testResult = action.testDb();
+        const data = { test: testResult };
+        return res.json(data);
+    });
+
+    router.get('/reset_test_images', async (req, res) => {
+        session.skippedImages = [];
+        action.resetTestImages();
+        const data = { done: true };
+        return res.json(data);
+    });
+
+    function getHealth() {
+        return {
+            ok: true,
+            message: 'Healthy',
+        };
+    }
 }
-
-module.exports = router;
