@@ -11,8 +11,10 @@ import ReviewPublishPage from "./pages/ReviewPublishPage";
 import axios from 'axios';
 
 function App() {
-  let isDev = document.cookie.match(/^.*[;]?dev=true[;]?.*$/)
-  var basePath = !isDev ? 'https://f11f-139-64-171-69.ngrok-free.app' : 'https://f11f-139-64-171-69.ngrok-free.app';
+  let isDev = process.env.ENVIRONMENT;
+  console.log("env");
+  console.log(isDev);
+  var basePath = isDev ? 'https://f11f-139-64-171-69.ngrok-free.app' : 'http://44.233.64.127:3003';
 
   var i = window.location.pathname.lastIndexOf('/');
   var navBasePath = window.location.pathname.slice(undefined, i);

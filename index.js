@@ -65,6 +65,7 @@ app.post('/health', function (req, res) {
 });
   
 sql.connectToDatabase();
+elastiCache.connectToRedis();
 
 app.listen(port, () => {
     console.log("server running on port 3001");
