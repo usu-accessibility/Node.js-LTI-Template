@@ -96,7 +96,7 @@ export default function ReviewModal({ basePath, open, onDismiss, courseUnderRevi
     function handleFeedback(name, image_url, comment){
         axios({
             method:'post',
-            url:`${basePath}/task.php?task=update_feedback`,
+            url:`${basePath}/update_feedback`,
             data: {
                 name: name,
                 image_url: image_url,
@@ -166,7 +166,7 @@ export default function ReviewModal({ basePath, open, onDismiss, courseUnderRevi
     function getAltTextUpdatedUserDetails(){
         axios({
             method:'post',
-            url:`${basePath}/task.php?task=get_alt_text_updated_user_name`,
+            url:`${basePath}/get_alt_text_updated_user_name`,
             data: {
                 image_url: 'all',
             }
@@ -202,7 +202,7 @@ export default function ReviewModal({ basePath, open, onDismiss, courseUnderRevi
     function updateAltTextUpdatedUserDetails(imageUrl, username, userimage){
         axios({
             method:'post',
-            url:`${basePath}/task.php?task=update_user_alt_text`,
+            url:`${basePath}/update_user_alt_text`,
             data: {
                 image_url: imageUrl,
                 new_user: username,
@@ -221,7 +221,7 @@ export default function ReviewModal({ basePath, open, onDismiss, courseUnderRevi
         setIsLoadingReview(true);
         axios({
           method:'post',
-          url:`${basePath}/task.php?task=mark_image_as_unusable`,
+          url:`${basePath}/mark_image_as_unusable`,
           data: {
             image_id: currentImageId
           }
@@ -292,7 +292,7 @@ export default function ReviewModal({ basePath, open, onDismiss, courseUnderRevi
 
         axios({
             method:'post',
-            url:`${basePath}/task.php?task=update_image_alt_text`,
+            url:`${basePath}/update_image_alt_text`,
             data: {
                 image_url: imageUrl,
                 is_decorative: isDecorative ? "1" : "0",

@@ -84,7 +84,7 @@ module.exports = function(router, session){
 
   router.post('/load_images', async (req, res) => {
       const requestBody = req.body;
-    
+      console.log(requestBody);
       if (
         (!requestBody || !('oauth_consumer_key' in requestBody) ||
           !('course_id' in requestBody) ||

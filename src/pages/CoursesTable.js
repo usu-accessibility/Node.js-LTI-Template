@@ -16,7 +16,7 @@ const BootstrapTooltip = styled(({ className, ...props }) => (
 }));
 
 export default function CoursesTable({basePath, courses, loadTable, setCourses, handleReview, setIsLoading, setPushMessage, handlePublish, courseFilter}) {
-  
+  console.log(courses);
   const [sortBy, setSortBy] = useState();
   const [ascending, setAscending] = useState(true);
 
@@ -35,6 +35,8 @@ export default function CoursesTable({basePath, courses, loadTable, setCourses, 
     }, []);
 
   useEffect(() => {
+    console.log("helllo");
+    console.log(courses);
     var val1 = 0;
     var val2 = 0;
     var val3 = 0;
@@ -43,13 +45,15 @@ export default function CoursesTable({basePath, courses, loadTable, setCourses, 
     var val6 = 0;
 
     (courses || []).map(course => {
-      if(course.total_images !== course.published_images){
+      // if(course.total_images !== course.published_images){
+      if(true){
         val1 += parseInt(course.total_images);
         val2 += parseInt(course.completed_images);
         val3 += parseInt(course.published_images);
         val4 += parseInt(course.completed_images) - parseInt(course.published_images);
         val5 += parseInt(course.advanced_images);
         val6 += parseInt(course.available_images);
+        console.log("inside");
       }
 
       setNoOfImages(val1);
@@ -153,8 +157,7 @@ export default function CoursesTable({basePath, courses, loadTable, setCourses, 
 
   // }
 
-  
-
+  console.log("bye");
   return (
     <div class="container-fluid content">      
         <div class="table-responsive custom-table-responsive">
@@ -216,8 +219,11 @@ export default function CoursesTable({basePath, courses, loadTable, setCourses, 
               </tr>
             </thead>
             <tbody>
+              {console.log(courses)}
               {(courses || []).map(course => {
-                if(course.total_images !== course.published_images){
+                                // if(course.total_images !== course.published_images){
+
+                if(true){
                   if((courseFilter === "") || (courseFilter !== "" && course.name && course.name.toLowerCase().replaceAll(" ", "").includes(courseFilter.toLowerCase().replaceAll(" ", "")))){
                     return (
                       <>

@@ -2,13 +2,14 @@ require("dotenv").config();
 const express = require("express");
 const bodyParser = require("body-parser");
 const sql = require('./src/services/sql-service');
+const elastiCache = require('./src/services/elasti-cache-service');
 const session = require('express-session');
 const cookieParser = require("cookie-parser");
 const path = require('path');
 const querystring = require('querystring');
 
 const app = express();
-const port = process.env.PORT || 3001;
+const port = process.env.PORT || 3002;
 const oneDay = 1000 * 60 * 60 * 24;
 
 app.use(session({secret:"nevergiveupinlife", cookie: { maxAge: oneDay }, saveUninitialized: true, resave: false}));

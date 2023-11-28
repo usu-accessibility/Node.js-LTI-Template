@@ -11,12 +11,12 @@
     <blti:title>Alt Text App - Dev</blti:title>
     <blti:description>Easily add alt text to images in Canvas</blti:description>
     <blti:icon></blti:icon>
-    <blti:launch_url>https://7e64-129-123-119-1.ngrok-free.app/health</blti:launch_url>
+    <blti:launch_url>https://f11f-139-64-171-69.ngrok-free.app/health</blti:launch_url>
     <blti:extensions platform="canvas.instructure.com">
       <lticm:property name="tool_id">accessibilityalttext</lticm:property>
       <lticm:property name="privacy_level">public</lticm:property>
       <lticm:options name="course_navigation">
-        <lticm:property name="url">https://7e64-129-123-119-1.ngrok-free.app/health</lticm:property>
+        <lticm:property name="url">https://f11f-139-64-171-69.ngrok-free.app/health</lticm:property>
         <lticm:property name="text">Alt Text App - Dev</lticm:property>
         <lticm:property name="visibility">public</lticm:property>
         <lticm:property name="default">enabled</lticm:property>

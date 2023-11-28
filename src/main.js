@@ -12,7 +12,7 @@ import axios from 'axios';
 
 function App() {
   let isDev = document.cookie.match(/^.*[;]?dev=true[;]?.*$/)
-  var basePath = !isDev ? 'https://7e64-129-123-119-1.ngrok-free.app' : ' https://7e64-129-123-119-1.ngrok-free.app';
+  var basePath = !isDev ? 'https://f11f-139-64-171-69.ngrok-free.app' : 'https://f11f-139-64-171-69.ngrok-free.app';
 
   var i = window.location.pathname.lastIndexOf('/');
   var navBasePath = window.location.pathname.slice(undefined, i);

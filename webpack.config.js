@@ -2,6 +2,7 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const ReplaceInFileWebpackPlugin = require('replace-in-file-webpack-plugin');
 const path = require('path');
 const webpack = require('webpack');
+const Dotenv = require('dotenv-webpack');
 
 module.exports = {
     mode: 'development',
@@ -57,7 +58,11 @@ module.exports = {
                 search: /\{À:"A",Á:"A",(.*?)\}/,
                 replace: ''
             }]
-        }])
+        }]),
+        new Dotenv({
+            path: './.env', // Path to .env file (this is the default)
+            safe: false, // load .env.example (defaults to "false" which does not use dotenv-safe)
+          })
     ],
     // Uncomment this for improved debugging messages
     // devtool: 'inline-source-map',

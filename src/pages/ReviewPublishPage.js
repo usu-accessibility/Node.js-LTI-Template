@@ -8,11 +8,11 @@ import { Overlay, Flex, Spinner, Mask, Text, Button, Alert } from '@instructure/
 import axios from 'axios';
 
 export default function ReviewPublishPage(props) {
-  if (!document.cookie.match(/^.*[;]?at_admin=true[;]?.*$/)) {
-    return (
-      <p>You are not authorized to access this page</p>
-    )
-  }
+  // if (!document.cookie.match(/^.*[;]?at_admin=true[;]?.*$/)) {
+  //   return (
+  //     <p>You are not authorized to access this page</p>
+  //   )
+  // }
 
   const [courses, setCourses] = useState([]);
   const [reviewOpen, setReviewOpen] = useState(false);
@@ -53,7 +53,7 @@ export default function ReviewPublishPage(props) {
             if( needs_conversion === "1"){
               axios({
                 method:'post',
-                url:`${props.basePath}/task.php?task=release_needs_conversion`,
+                url:`${props.basePath}/release_needs_conversion`,
                 data: {
                   course_id: courseId
                 }
@@ -77,7 +77,7 @@ export default function ReviewPublishPage(props) {
 
   function loadTable(courseId = null, pushed_images, needs_conversion) {
     axios.get(
-      `${props.basePath}/task.php?task=get_courses_info`
+      `${props.basePath}/get_courses_info`
     )
     .then((response) => {
 
@@ -95,19 +95,22 @@ export default function ReviewPublishPage(props) {
       else {
         loadJson = response.data;
       }
-
+      
+      console.log(loadJson);
       setCourses(loadJson);
 
       if(courseId){
         updateMondayBoard(courseId, pushed_images, needs_conversion);
       }
+    }).catch((error) => {
+      console.log(error);
     })
   }
 
   function handleReview(courseId, courseName) {
 
     axios.get(
-      `${props.basePath}/task.php?task=get_completed_images&course_id=${courseId}`
+      `${props.basePath}/get_completed_images?course_id=${courseId}`
     )
     .then((response) => {
 
@@ -144,7 +147,7 @@ export default function ReviewPublishPage(props) {
   function handlePublishAll() {
     setIsLoading(true);
     axios.post(
-      `${props.basePath}/task.php?task=push_images`
+      `${props.basePath}/push_images`
     )
     .then((response) => {
 
@@ -186,7 +189,7 @@ export default function ReviewPublishPage(props) {
 
     axios({
       method:'post',
-      url:`${props.basePath}/task.php?task=push_image`,
+      url:`${props.basePath}/push_image`,
       data: {
         course_id: courseId
       }
@@ -231,7 +234,7 @@ export default function ReviewPublishPage(props) {
 
   }
 
-
+  console.log(!reviewOpen);
   return (
     <>
       {!reviewOpen && <div className='space-children'>

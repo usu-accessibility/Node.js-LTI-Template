@@ -1,9 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Button, NumberInput, Overlay, Mask, Spinner, Text, Checkbox, Flex, Table, Alert } from '@instructure/ui';
 
-import CoursesTable from './CoursesTable';
-import ReviewModal from './ReviewModal';
-
 import axios from 'axios';
 
 export default function LoadImagesPage(props) {
@@ -31,8 +28,9 @@ export default function LoadImagesPage(props) {
       
       axios({
         method:'post',
-        url:`${props.basePath}/task.php?task=load_images`,
+        url:`${props.basePath}/load_images`,
         data: {
+          oauth_consumer_key: process.env.CANVAS_TOKEN,
           course_id: courseId, 
           is_priority: courseIsPriority
         }
