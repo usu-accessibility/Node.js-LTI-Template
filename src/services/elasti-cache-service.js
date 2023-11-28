@@ -32,7 +32,7 @@ var RedisClient = require('redis');
 var redis = new RedisClustr({
     servers: [
         {
-            host: "accessibilitycache.fif8xk.ng.0001.usw2.cache.amazonaws.com",
+            host: "accessibilitycache-001.fif8xk.0001.usw2.cache.amazonaws.com",
             port: 6379
         }
     ],
