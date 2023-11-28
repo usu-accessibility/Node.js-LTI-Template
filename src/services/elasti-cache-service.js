@@ -14,8 +14,9 @@ async function connectToRedis(){
         age: 29
     })
 
-    let userSession = await client.hGetAll('user-session:123');
-    console.log(JSON.stringify(userSession, null, 2));
+    await client.set('key', 'value');
+    const value = await client.get('key');
+    console.log(value)
 }
 
 module.exports = {
