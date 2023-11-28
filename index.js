@@ -9,7 +9,7 @@ const path = require('path');
 const querystring = require('querystring');
 
 const app = express();
-const port = process.env.PORT || 3002;
+const port = process.env.PORT || 3003;
 const oneDay = 1000 * 60 * 60 * 24;
 
 app.use(session({secret:"nevergiveupinlife", cookie: { maxAge: oneDay }, saveUninitialized: true, resave: false}));
