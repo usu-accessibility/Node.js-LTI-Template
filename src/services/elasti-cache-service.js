@@ -15,3 +15,11 @@ redisClient.on('connect', () => {
 redisClient.on('error', (err) => {
     console.error(`Redis Error: ${err}`);
 });
+
+redisClient.set('my_key', 'my_value', (err, response) => {
+    if (err) {
+      console.error(`Set error: ${err}`);
+    } else {
+      console.log(`Set response: ${response}`);
+    }
+  });
