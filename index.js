@@ -1,7 +1,7 @@
 require("dotenv").config();
 const express = require("express");
 const bodyParser = require("body-parser");
-const sql = require('./src/services/sql-service');
+const database = require('./src/services/sql-service');
 const session = require('express-session');
 const cookieParser = require("cookie-parser");
 const path = require('path');
@@ -63,7 +63,8 @@ app.post('/health', function (req, res) {
     res.sendFile(path.join(__dirname,  "/build/app.html"));
 });
   
-sql.connectToDatabase();
+database.connectToDatabase();
+database.connectToDatabasePostgres();
 
 app.listen(port, () => {
     console.log("server running on port 3001");

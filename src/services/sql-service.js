@@ -1,10 +1,18 @@
 var mysql = require('mysql');
+const { Client } = require('pg')
 
 var connection = mysql.createConnection({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME
+});
+
+const postgres_connection = new Client({
+  user: process.env.DB_USER_POSTGRES,
+  host: process.env.DB_HOST_POSTGRES,
+  password: process.env.DB_PASSWORD_POSTGRES,
+  port: 5432,
 });
 
 async function connectToDatabase(){
@@ -14,7 +22,20 @@ async function connectToDatabase(){
         reject(err);
         return;
       }
-      console.log('Connected');
+      console.log('Connected to mysql');
+      resolve(results);
+    });
+  })
+}
+
+async function connectToDatabasePostgres(){
+  return new Promise((resolve, reject) => {
+    postgres_connection.connect(function(err, results) {
+      if (err){
+        reject(err);
+        return;
+      }
+      console.log('Connected to postgres');
       resolve(results);
     });
   })
@@ -144,5 +165,6 @@ module.exports = {
   deleteData,
   connectToDatabase,
   queryFirstRow,
-  readDataOnCondition
+  readDataOnCondition,
+  connectToDatabasePostgres
 }
