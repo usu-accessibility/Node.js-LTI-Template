@@ -2,7 +2,6 @@ require("dotenv").config();
 const express = require("express");
 const bodyParser = require("body-parser");
 const sql = require('./src/services/sql-service');
-const elastiCache = require('./src/services/elasti-cache-service');
 const session = require('express-session');
 const cookieParser = require("cookie-parser");
 const path = require('path');
@@ -65,7 +64,6 @@ app.post('/health', function (req, res) {
 });
   
 sql.connectToDatabase();
-elastiCache.connectToRedis();
 
 app.listen(port, () => {
     console.log("server running on port 3001");
