@@ -64,8 +64,7 @@ app.post('/health', function (req, res) {
 });
   
 database.connectToDatabase();
-database.connectToDatabasePostgres();
 
 app.listen(port, () => {
-    console.log("server running on port 3001");
+    console.log("server running on port 3003");
 });

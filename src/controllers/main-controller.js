@@ -360,7 +360,7 @@ async function getUserByLmsId(lmsId) {
     `SELECT id FROM ${table_name}
     WHERE lms_id=?
     LIMIT 1`,
-    lmsId
+    [lmsId]
   );
 
   if (!user[0]) {
