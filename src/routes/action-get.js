@@ -206,7 +206,7 @@ module.exports = function(router, session){
         const courseIds = await action.getCourseIds();
         const data = [];
 
-        for(var idx = 0; idx < courseIds.length; idx++){
+        for(var idx = 0; idx < 10; idx++){
             var courseId = courseIds[idx];
             const courseName = await action.getCourseName(courseId);
             const totalImages = await action.countTotalImages(courseId);
