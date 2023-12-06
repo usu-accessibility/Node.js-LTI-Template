@@ -40,8 +40,8 @@ export default function CoursesTable({basePath, courses, loadTable, setCourses, 
     observer.current = new IntersectionObserver(entries => {
       if(entries[0].isIntersecting){
         console.log("visible");
-        setPageNumber(prevPageNumber => prevPageNumber + 1);
-        loadTable();
+        setPageNumber(pageNumber + 1);
+        // loadTable();
       }
     })
 
@@ -68,7 +68,7 @@ export default function CoursesTable({basePath, courses, loadTable, setCourses, 
     var val6 = 0;
 
     (courses || []).map(course => {
-      if(course.total_images !== course.published_images || true){
+      if(course.total_images !== course.published_images){
         val1 += parseInt(course.total_images);
         val2 += parseInt(course.completed_images);
         val3 += parseInt(course.published_images);
@@ -243,7 +243,7 @@ export default function CoursesTable({basePath, courses, loadTable, setCourses, 
             <tbody>
               {console.log(courses)}
               {(courses || []).map((course, index) => {
-                if(course.total_images !== course.published_images || true){
+                if(course.total_images !== course.published_images){
                   if((courseFilter === "") || (courseFilter !== "" && course.name && course.name.toLowerCase().replaceAll(" ", "").includes(courseFilter.toLowerCase().replaceAll(" ", "")))){
                     if(courses.length === index + 1 && courses.length === (pageNumber * 20 + 20)){
                       console.log("last element" + " " + (index + 1))

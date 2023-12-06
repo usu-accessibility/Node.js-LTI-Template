@@ -145,6 +145,8 @@ module.exports = function(router, session){
         const data = {
           images_added: imagesAdded,
         };
+
+        await action.addTotalImagesToCourse(courseId);
         return res.json(data);
       } else {
         const message =
@@ -322,6 +324,7 @@ module.exports = function(router, session){
           'images failing to push is usually caused by the course no longer existing in canvas';
       }
     
+      await action.addTotalImagesToCourse(courseId);
       // Action.updateMondayBoard(courseId);
       return res.json(data);
   });

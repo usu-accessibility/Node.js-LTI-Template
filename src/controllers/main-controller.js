@@ -710,6 +710,23 @@ async function countTotalImages(courseId) {
   }
 }
 
+async function addTotalImagesToCourse(courseId) {
+  try {
+    const addImages = await sql.queryFirstRow(
+      `UPDATE at_course c
+      SET total_images = (SELECT COUNT(id) FROM at_image WHERE course_id = c.id), 
+      published_images = (SELECT COUNT(id) FROM at_image WHERE course_id = c.id AND pushed_to_canvas = 1)
+      WHERE c.id = ?;`,
+      [courseId]
+    );
+
+    return addImages;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
 async function resetAlltheUsers() {
   try {
     await sql.queryFirstRow(
@@ -817,6 +834,7 @@ async function getReviewPageTableValues(pageNumber) {
         (SELECT COUNT(id) FROM at_image WHERE course_id = c.id AND editor != 0 AND pushed_to_canvas = 0) AS available_images
       FROM
         at_course c
+      WHERE total_images != published_images
       LIMIT 20 OFFSET ?;
       `, [pageNumber * 20]
     );
@@ -1600,5 +1618,6 @@ module.exports = {
   getDatabaseTables,
   getCanvasPage,
   testDB,
-  getReviewPageTableValues
+  getReviewPageTableValues,
+  addTotalImagesToCourse
 }

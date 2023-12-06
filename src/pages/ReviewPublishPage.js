@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect} from 'react';
 
 import CoursesTable from './CoursesTable';
 import ReviewModal from './ReviewModal';
@@ -22,6 +22,10 @@ export default function ReviewPublishPage(props) {
   const [pushMessage, setPushMessage] = useState('');
   const [courseFilter, setCourseFilter] = useState("");
   const [pageNumber, setPageNumber] = useState(0);
+
+  useEffect(() => {    
+    loadTable();
+  }, [pageNumber]);
 
   function handleFilterChange(e){
     setCourseFilter(e.target.value.trim());
@@ -98,6 +102,9 @@ export default function ReviewPublishPage(props) {
       }
       
       console.log(loadJson);
+      console.log("pageNumber");
+      console.log(pageNumber);
+      console.log(courses);
 
       if(courses.length === 0){
         setCourses(loadJson)
