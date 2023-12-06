@@ -45,7 +45,8 @@ export default function CoursesTable({basePath, courses, loadTable, setCourses, 
     var val6 = 0;
 
     (courses || []).map(course => {
-      if(course.total_images !== course.published_images){
+      if(true){
+      // if(course.total_images !== course.published_images){
         val1 += parseInt(course.total_images);
         val2 += parseInt(course.completed_images);
         val3 += parseInt(course.published_images);
@@ -220,7 +221,8 @@ export default function CoursesTable({basePath, courses, loadTable, setCourses, 
             <tbody>
               {console.log(courses)}
               {(courses || []).map(course => {
-                if(course.total_images !== course.published_images){
+                if(true){
+                // if(course.total_images !== course.published_images){
                   if((courseFilter === "") || (courseFilter !== "" && course.name && course.name.toLowerCase().replaceAll(" ", "").includes(courseFilter.toLowerCase().replaceAll(" ", "")))){
                     return (
                       <>
