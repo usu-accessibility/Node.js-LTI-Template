@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect , useRef, useCallback } from 'react';
 import { Table, Button, Text, ScreenReaderContent } from "@instructure/ui";
 import Tooltip, { tooltipClasses } from '@mui/material/Tooltip';
 import { styled } from '@mui/material/styles';
@@ -15,7 +15,7 @@ const BootstrapTooltip = styled(({ className, ...props }) => (
   },
 }));
 
-export default function CoursesTable({basePath, courses, loadTable, setCourses, handleReview, setIsLoading, setPushMessage, handlePublish, courseFilter}) {
+export default function CoursesTable({basePath, courses, loadTable, setCourses, handleReview, setIsLoading, setPushMessage, handlePublish, courseFilter, setPageNumber, pageNumber}) {
   console.log(courses);
   const [sortBy, setSortBy] = useState();
   const [ascending, setAscending] = useState(true);
@@ -29,10 +29,33 @@ export default function CoursesTable({basePath, courses, loadTable, setCourses, 
 
   const direction = ascending ? 'ascending' : 'descending';
   
+  const observer = useRef();
+  const lastTableElement = useCallback(row => {
+    console.log(row)
+    console.log(observer.current)
+    if(observer.current){
+      observer.current.disconnect();
+    }
+    
+    observer.current = new IntersectionObserver(entries => {
+      if(entries[0].isIntersecting){
+        console.log("visible");
+        setPageNumber(prevPageNumber => prevPageNumber + 1);
+        loadTable();
+      }
+    })
+
+    if(row){
+      console.log("row");
+      observer.current.observe(row);
+    }
+
+    console.log("hello");
+  });
 
   useEffect(() => {    
     loadTable();
-    }, []);
+  }, []);
 
   useEffect(() => {
     console.log("helllo");
@@ -45,8 +68,7 @@ export default function CoursesTable({basePath, courses, loadTable, setCourses, 
     var val6 = 0;
 
     (courses || []).map(course => {
-      if(true){
-      // if(course.total_images !== course.published_images){
+      if(course.total_images !== course.published_images || true){
         val1 += parseInt(course.total_images);
         val2 += parseInt(course.completed_images);
         val3 += parseInt(course.published_images);
@@ -220,42 +242,79 @@ export default function CoursesTable({basePath, courses, loadTable, setCourses, 
             </thead>
             <tbody>
               {console.log(courses)}
-              {(courses || []).map(course => {
-                if(true){
-                // if(course.total_images !== course.published_images){
+              {(courses || []).map((course, index) => {
+                if(course.total_images !== course.published_images || true){
                   if((courseFilter === "") || (courseFilter !== "" && course.name && course.name.toLowerCase().replaceAll(" ", "").includes(courseFilter.toLowerCase().replaceAll(" ", "")))){
-                    return (
-                      <>
-                        <tr scope="row">
-                          <td>
-                            <a target="_blank" href={"https://usu.instructure.com/courses/" + course.id}>{course.name}</a>
-                          </td>
-                          <td>
-                            {parseInt(course.total_images)}
-                          </td>
-                          <td>
-                            {parseInt(course.published_images)}
-                          </td>
-                          <td>{parseInt(course.completed_images) - parseInt(course.published_images)}</td>
-                          <td>{parseInt(course.advanced_images)}</td>
-                          <td>{parseInt(course.available_images)}</td>
-                          <td><button type="button" class="btn btn-primary" onClick={() => handleReview(course.id, course.name)}>Review</button></td>
-                          <td><button type="button" class="btn btn-primary" onClick={() => handlePublish(course.id)}>Publish</button></td>
-                        </tr>
-                        <tr class="spacer"><td colspan="100"></td></tr>
-                      </>
-
-                      // <Table.Row key={parseInt(course.id)}>
-                      //   <Table.RowHeader id={parseInt(course.id)}><a target="_blank" href={"https://usu.instructure.com/courses/" + course.id}>{course.name}</a></Table.RowHeader>
-                      //   <Table.Cell>{parseInt(course.total_images)}</Table.Cell>
-                      //   <Table.Cell>{parseInt(course.published_images)}</Table.Cell>
-                      //   <Table.Cell>{parseInt(course.completed_images) - parseInt(course.published_images)}</Table.Cell>
-                      //   <Table.Cell>{parseInt(course.advanced_images)}</Table.Cell>
-                      //   <Table.Cell>{parseInt(course.available_images)}</Table.Cell>
-                      //   <Table.Cell><Button color='secondary' onClick={() => handleReview(course.id, course.name)}>Review</Button></Table.Cell>
-                      //   <Table.Cell><Button color='secondary' onClick={() => handlePublish(course.id)}>Publish</Button></Table.Cell>
-                      // </Table.Row>
-                    )
+                    if(courses.length === index + 1 && courses.length === (pageNumber * 20 + 20)){
+                      console.log("last element" + " " + (index + 1))
+                      console.log(courses)
+                      return (
+                        <>
+                          <tr scope="row" ref={lastTableElement}>
+                            <td>
+                              <a target="_blank" href={"https://usu.instructure.com/courses/" + course.id}>{course.name}</a>
+                            </td>
+                            <td>
+                              {parseInt(course.total_images)}
+                            </td>
+                            <td>
+                              {parseInt(course.published_images)}
+                            </td>
+                            <td>{parseInt(course.completed_images) - parseInt(course.published_images)}</td>
+                            <td>{parseInt(course.advanced_images)}</td>
+                            <td>{parseInt(course.available_images)}</td>
+                            <td><button type="button" class="btn btn-primary" onClick={() => handleReview(course.id, course.name)}>Review</button></td>
+                            <td><button type="button" class="btn btn-primary" onClick={() => handlePublish(course.id)}>Publish</button></td>
+                          </tr>
+                          <tr class="spacer"><td colspan="100"></td></tr>
+                        </>
+  
+                        // <Table.Row key={parseInt(course.id)}>
+                        //   <Table.RowHeader id={parseInt(course.id)}><a target="_blank" href={"https://usu.instructure.com/courses/" + course.id}>{course.name}</a></Table.RowHeader>
+                        //   <Table.Cell>{parseInt(course.total_images)}</Table.Cell>
+                        //   <Table.Cell>{parseInt(course.published_images)}</Table.Cell>
+                        //   <Table.Cell>{parseInt(course.completed_images) - parseInt(course.published_images)}</Table.Cell>
+                        //   <Table.Cell>{parseInt(course.advanced_images)}</Table.Cell>
+                        //   <Table.Cell>{parseInt(course.available_images)}</Table.Cell>
+                        //   <Table.Cell><Button color='secondary' onClick={() => handleReview(course.id, course.name)}>Review</Button></Table.Cell>
+                        //   <Table.Cell><Button color='secondary' onClick={() => handlePublish(course.id)}>Publish</Button></Table.Cell>
+                        // </Table.Row>
+                      )
+                    }
+                    else{
+                      return (
+                        <>
+                          <tr scope="row" >
+                            <td>
+                              <a target="_blank" href={"https://usu.instructure.com/courses/" + course.id}>{course.name}</a>
+                            </td>
+                            <td>
+                              {parseInt(course.total_images)}
+                            </td>
+                            <td>
+                              {parseInt(course.published_images)}
+                            </td>
+                            <td>{parseInt(course.completed_images) - parseInt(course.published_images)}</td>
+                            <td>{parseInt(course.advanced_images)}</td>
+                            <td>{parseInt(course.available_images)}</td>
+                            <td><button type="button" class="btn btn-primary" onClick={() => handleReview(course.id, course.name)}>Review</button></td>
+                            <td><button type="button" class="btn btn-primary" onClick={() => handlePublish(course.id)}>Publish</button></td>
+                          </tr>
+                          <tr class="spacer"><td colspan="100"></td></tr>
+                        </>
+  
+                        // <Table.Row key={parseInt(course.id)}>
+                        //   <Table.RowHeader id={parseInt(course.id)}><a target="_blank" href={"https://usu.instructure.com/courses/" + course.id}>{course.name}</a></Table.RowHeader>
+                        //   <Table.Cell>{parseInt(course.total_images)}</Table.Cell>
+                        //   <Table.Cell>{parseInt(course.published_images)}</Table.Cell>
+                        //   <Table.Cell>{parseInt(course.completed_images) - parseInt(course.published_images)}</Table.Cell>
+                        //   <Table.Cell>{parseInt(course.advanced_images)}</Table.Cell>
+                        //   <Table.Cell>{parseInt(course.available_images)}</Table.Cell>
+                        //   <Table.Cell><Button color='secondary' onClick={() => handleReview(course.id, course.name)}>Review</Button></Table.Cell>
+                        //   <Table.Cell><Button color='secondary' onClick={() => handlePublish(course.id)}>Publish</Button></Table.Cell>
+                        // </Table.Row>
+                      )
+                    }
                   }
                 }
               })}

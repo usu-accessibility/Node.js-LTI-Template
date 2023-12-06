@@ -803,6 +803,33 @@ async function countAvailableImages(courseId) {
   }
 }
 
+
+async function getReviewPageTableValues(pageNumber) {
+  try {
+    const reviewPageTableImagesCount = await sql.queryFirstRow(
+      `SELECT
+        c.id AS id,
+        c.course_name AS name,
+        (SELECT COUNT(id) FROM at_image WHERE course_id = c.id) AS total_images,
+        (SELECT COUNT(id) FROM at_image WHERE course_id = c.id AND completed_at IS NOT NULL AND completed_at != '0000-00-00 00:00:00') AS completed_images,
+        (SELECT COUNT(id) FROM at_image WHERE course_id = c.id AND pushed_to_canvas = 1) AS published_images,
+        (SELECT COUNT(id) FROM at_image WHERE course_id = c.id AND advanced_type IS NOT NULL AND pushed_to_canvas = 0) AS advanced_images,
+        (SELECT COUNT(id) FROM at_image WHERE course_id = c.id AND editor != 0 AND pushed_to_canvas = 0) AS available_images
+      FROM
+        at_course c
+      LIMIT 20 OFFSET ?;
+      `, [pageNumber * 20]
+    );
+
+    return reviewPageTableImagesCount;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+
+
 async function createUser(lmsId, displayName) {
   try {
     await sql.createData('at_user', {
@@ -1572,5 +1599,6 @@ module.exports = {
   getAssignmentPage,
   getDatabaseTables,
   getCanvasPage,
-  testDB
+  testDB,
+  getReviewPageTableValues
 }

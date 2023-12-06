@@ -21,6 +21,7 @@ export default function ReviewPublishPage(props) {
   const [isLoading, setIsLoading] = useState(false);
   const [pushMessage, setPushMessage] = useState('');
   const [courseFilter, setCourseFilter] = useState("");
+  const [pageNumber, setPageNumber] = useState(0);
 
   function handleFilterChange(e){
     setCourseFilter(e.target.value.trim());
@@ -77,7 +78,7 @@ export default function ReviewPublishPage(props) {
 
   function loadTable(courseId = null, pushed_images, needs_conversion) {
     axios.get(
-      `${props.basePath}/get_courses_info`
+      `${props.basePath}/get_courses_info?pageNumber=${pageNumber}`
     )
     .then((response) => {
 
@@ -97,7 +98,18 @@ export default function ReviewPublishPage(props) {
       }
       
       console.log(loadJson);
-      setCourses(loadJson);
+
+      if(courses.length === 0){
+        setCourses(loadJson)
+      }
+      else if(pageNumber * 20 === courses.length){
+        setCourses(prevValues => {
+          return [...prevValues, ...loadJson]
+        });
+      }
+
+      console.log("courses");
+      console.log(courses);
 
       if(courseId){
         updateMondayBoard(courseId, pushed_images, needs_conversion);
@@ -262,6 +274,8 @@ export default function ReviewPublishPage(props) {
           setPushMessage={setPushMessage}
           handlePublish={handlePublish}
           courseFilter={courseFilter}
+          setPageNumber={setPageNumber}
+          pageNumber={pageNumber}
         />
         <br />
         {pushMessage != '' ? <Alert

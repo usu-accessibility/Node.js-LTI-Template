@@ -203,30 +203,45 @@ module.exports = function(router, session){
     });
 
     router.get('/get_courses_info', async (req, res) => {
-        const courseIds = await action.getCourseIds();
-        const data = [];
 
-        for(var idx = 0; idx < 10; idx++){
-            var courseId = courseIds[idx];
-            const courseName = await action.getCourseName(courseId);
-            const totalImages = await action.countTotalImages(courseId);
-            const completedImages = await action.countCompletedImages(courseId);
-            const publishedImages = await action.countPublishedImages(courseId);
-            const advancedImages = await action.countAdvancedImages(courseId);
-            const availableImages = await action.countAvailableImages(courseId);
+        // const courseIds = await action.getCourseIds();
+        // const data = [];
+        // for(var idx = 0; idx < courseIds.length; idx++){
 
-            console.log(idx + " " + courseIds.length);
+        //     var courseId = courseIds[idx];
+        let pageNumber = req.query.pageNumber;
 
-            data.push({
-                id: courseId,
-                name: courseName,
-                total_images: totalImages,
-                completed_images: completedImages,
-                published_images: publishedImages,
-                advanced_images: advancedImages,
-                available_images: availableImages,
-            });
-        }
+        console.log(pageNumber);
+
+        var results = await action.getReviewPageTableValues(pageNumber);
+        console.log("final result ");
+        console.log(results)
+            // const courseName = result['course_name']
+            // const totalImages = result['total_images']
+            // const completedImages = result['completed_images']
+            // const publishedImages = result['published_images']
+            // const advancedImages = result['advanced_images']
+            // const availableImages = result['available_images']
+
+            // const courseName = await action.getCourseName(courseId);
+            // const totalImages = await action.countTotalImages(courseId);
+            // const completedImages = await action.countCompletedImages(courseId);
+            // const publishedImages = await action.countPublishedImages(courseId);
+            // const advancedImages = await action.countAdvancedImages(courseId);
+            // const availableImages = await action.countAvailableImages(courseId);
+
+            // console.log(idx + " " + courseIds.length);
+
+            // data.push({
+            //     id: courseId,
+            //     name: courseName,
+            //     total_images: totalImages,
+            //     completed_images: completedImages,
+            //     published_images: publishedImages,
+            //     advanced_images: advancedImages,
+            //     available_images: availableImages,
+            // });
+        // }
 
         // courseIds.forEach((courseId) => {
         //     const courseName = await action.getCourseName(courseId);
@@ -246,10 +261,7 @@ module.exports = function(router, session){
         //         available_images: availableImages,
         //     });
         // });w
-
-        // Send the data as a JSON response
-        console.log(data);
-        return res.json(data);
+        return res.json(results);
     });
 
     router.get('/get_completed_images', async (req, res) => {
