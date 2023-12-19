@@ -823,6 +823,8 @@ async function countAvailableImages(courseId) {
 
 async function getReviewPageTableValues(pageNumber) {
   try {
+    console.log("page number");
+    console.log(pageNumber);
     const reviewPageTableImagesCount = await sql.queryFirstRow(
       `SELECT
         c.id AS id,
