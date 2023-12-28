@@ -28,7 +28,7 @@ The Alternative Text Tool is built using the following technologies:
 - **Integration**: Integration with Monday board using AWS Lambda functions
 - **User Management**: Automatic daily reset of course assignments for users
 
-![Projects - Page 1](https://github.com/Dheeraj0650/AltTextBackend/assets/41461773/cc0092f4-c426-4e9a-9c2b-64a4e7e03e73)
+![Projects - Page 1-2](https://github.com/Dheeraj0650/AltTextApplication/assets/41461773/3265171d-523f-4026-8bc0-c1c5ec2e57ee)
 
 
 ## Workflow
