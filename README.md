@@ -37,7 +37,9 @@ The workflow of the Alternative Text Tool consists of the following four main pa
 
 1. **Home Page**: This is the main dashboard where users can view images on the left and the associated course page on the right. Users can filter courses and add alt text, mark images as advanced, or skip them.
    
-![Screenshot 2023-10-23 at 5 08 05 PM](https://github.com/usu-accessibility/AltTextApp/assets/41461773/61772411-df12-4329-b5cd-62d05e55b760) ![Screenshot 2023-10-23 at 5 08 15 PM](https://github.com/usu-accessibility/AltTextApp/assets/41461773/cf6342dd-c2b3-4130-8a84-f0d8dc96a6d1)
+![Screenshot 2023-10-23 at 5 08 05 PM](https://github.com/usu-accessibility/AltTextApp/assets/41461773/61772411-df12-4329-b5cd-62d05e55b760) 
+
+![Screenshot 2023-10-23 at 5 08 15 PM](https://github.com/usu-accessibility/AltTextApp/assets/41461773/cf6342dd-c2b3-4130-8a84-f0d8dc96a6d1)
 
 
 3. **Advanced Images Page**: Here, more expert users can add alt text to complex images or put them on hold for further review.
@@ -46,11 +48,15 @@ The workflow of the Alternative Text Tool consists of the following four main pa
 
 5. **Load Images Page**: Users load course images into the Alternative Text Tool using the course ID and we can also load images from monday board by changing the status tag to "Load Images".
    
-![Screenshot 2023-10-23 at 5 08 53 PM](https://github.com/usu-accessibility/AltTextApp/assets/41461773/698a7554-0ed1-4d2b-9bc0-7d7a5e87371f) ![Screenshot 2023-10-23 at 5 16 58 PM](https://github.com/usu-accessibility/AltTextApp/assets/41461773/2934b11a-37be-412f-a5b7-ed311f1976b1)
+![Screenshot 2023-10-23 at 5 08 53 PM](https://github.com/usu-accessibility/AltTextApp/assets/41461773/698a7554-0ed1-4d2b-9bc0-7d7a5e87371f)
+
+![Screenshot 2023-10-23 at 5 16 58 PM](https://github.com/usu-accessibility/AltTextApp/assets/41461773/2934b11a-37be-412f-a5b7-ed311f1976b1)
 
 7. **Review & Publish Page**: Admins can review the alt text added by users and publish it back to the Canvas course.
    
-![Screenshot 2023-10-23 at 5 09 19 PM](https://github.com/usu-accessibility/AltTextApp/assets/41461773/aad31345-17e6-4211-bbfb-58498d4fce7b) ![Screenshot 2023-10-23 at 5 09 55 PM](https://github.com/usu-accessibility/AltTextApp/assets/41461773/94aa3fb6-c6a5-4aa2-955d-03a80f066969)
+![Screenshot 2023-10-23 at 5 09 19 PM](https://github.com/usu-accessibility/AltTextApp/assets/41461773/aad31345-17e6-4211-bbfb-58498d4fce7b)
+
+![Screenshot 2023-10-23 at 5 09 55 PM](https://github.com/usu-accessibility/AltTextApp/assets/41461773/94aa3fb6-c6a5-4aa2-955d-03a80f066969)
 
 
 
