@@ -982,8 +982,7 @@ async function markImageAsUnusable(imageId) {
 
     return courseInfo[0]['course_id'];
   } catch (error) {
-    // console.error(error);
-    // throw error;
+    console.log(error);
   }
 }
 

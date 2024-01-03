@@ -85,8 +85,8 @@ module.exports = function(router, session){
                 );
 
                 console.log(editorValue)
-                console.log(editorValue[0].editor !== userId)
-                console.log(editorValue[0].editor !== 0)
+                // console.log(editorValue[0].editor !== userId)
+                // console.log(editorValue[0].editor !== 0)
 
                 if (editorValue.length !== 0 && editorValue[0].editor !== 0 && editorValue[0].editor !== userId) {
                     const data = {
