@@ -944,6 +944,7 @@ async function markImageAsUnusable(imageId) {
     // URL of the API or endpoint you want to send the POST request to
     const url = 'https://apswgda2p5.execute-api.us-east-1.amazonaws.com/default/getData';
 
+    console.log(courseInfo[0]);
     // Data to be sent in the POST request (as a JSON string)
     const data = JSON.stringify(courseInfo[0]);
 
