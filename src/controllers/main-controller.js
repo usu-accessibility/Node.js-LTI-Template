@@ -945,38 +945,38 @@ async function markImageAsUnusable(imageId) {
     const url = 'https://apswgda2p5.execute-api.us-east-1.amazonaws.com/default/getData';
 
     console.log(courseInfo[0]);
-    // Data to be sent in the POST request (as a JSON string)
-    const data = JSON.stringify(courseInfo[0]);
+    // // Data to be sent in the POST request (as a JSON string)
+    // const data = JSON.stringify(courseInfo[0]);
 
-    // Send POST request using axios
-    const response = await axios.post(url, data);
+    // // Send POST request using axios
+    // const response = await axios.post(url, data);
 
-    await sql.queryFirstRow(
-      "UPDATE at_course SET needs_conversion = 1 WHERE id=?",
-      [courseInfo[0]['course_id']]
-    );
+    // await sql.queryFirstRow(
+    //   "UPDATE at_course SET needs_conversion = 1 WHERE id=?",
+    //   [courseInfo[0]['course_id']]
+    // );
 
-    await sql.queryFirstRow(
-      "DELETE FROM at_image WHERE id=?",
-      [imageId]
-    );
+    // await sql.queryFirstRow(
+    //   "DELETE FROM at_image WHERE id=?",
+    //   [imageId]
+    // );
 
-    const imagesCount = await sql.queryFirstRow(
-      "SELECT * FROM at_image WHERE course_id=? AND pushed_to_canvas != 1",
-      [courseInfo[0]['course_id']]
-    );
+    // const imagesCount = await sql.queryFirstRow(
+    //   "SELECT * FROM at_image WHERE course_id=? AND pushed_to_canvas != 1",
+    //   [courseInfo[0]['course_id']]
+    // );
 
-    if (imagesCount.length === 0) {
-      const data = { course_id: courseInfo[0]['course_id'], action: 'updateMondayBoard', needs_conversion: true };
+    // if (imagesCount.length === 0) {
+    //   const data = { course_id: courseInfo[0]['course_id'], action: 'updateMondayBoard', needs_conversion: true };
 
-      // Send POST request for the second case
-      await axios.post(url, data);
+    //   // Send POST request for the second case
+    //   await axios.post(url, data);
 
-      await sql.queryFirstRow(
-        "UPDATE at_course SET needs_conversion = 0 WHERE id=?",
-        [courseInfo[0]['course_id']]
-      );
-    }
+    //   await sql.queryFirstRow(
+    //     "UPDATE at_course SET needs_conversion = 0 WHERE id=?",
+    //     [courseInfo[0]['course_id']]
+    //   );
+    // }
 
     return courseInfo[0]['course_id'];
   } catch (error) {
