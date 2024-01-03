@@ -77,7 +77,7 @@ module.exports = function(router, session){
         console.log(req.query.lock !== null)
         if (user.success) {
             const userId = user.user_id;
-
+     
             if (req.query.lock !== null) {
                 const editorValue = await sql.queryFirstRow(
                     "SELECT editor FROM at_image WHERE id = ?",
