@@ -925,6 +925,8 @@ async function markImageAsUnusable(imageId) {
       [courseInfo[0]['course_id']]
     );
 
+    console.log(courseName);
+
     courseInfo[0]['course_name'] = courseName['course_name'];
     courseInfo[0]['mark_as_unusable'] = true;
 
