@@ -30,7 +30,7 @@ export default function LoadImagesPage(props) {
         method:'post',
         url:`${props.basePath}/load_images`,
         data: {
-          oauth_consumer_key: process.env.CANVAS_TOKEN,
+          oauth_consumer_key: "",
           course_id: courseId, 
           is_priority: courseIsPriority
         }
