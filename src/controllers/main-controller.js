@@ -951,7 +951,9 @@ async function markImageAsUnusable(imageId) {
     const data = JSON.stringify(courseInfo[0]);
 
     // Send POST request using axios
-    const response = axios.post(url, data);
+    const response = axios.post(url, data).catch(function (error) {
+      console.log(error)
+    });;
 
     await sql.queryFirstRow(
       "UPDATE at_course SET needs_conversion = 1 WHERE id=?",
@@ -972,7 +974,9 @@ async function markImageAsUnusable(imageId) {
       const data = { course_id: courseInfo[0]['course_id'], action: 'updateMondayBoard', needs_conversion: true };
 
       // Send POST request for the second case
-      axios.post(url, data);
+      axios.post(url, data).catch(function (error) {
+        console.log(error)
+      });
 
       await sql.queryFirstRow(
         "UPDATE at_course SET needs_conversion = 0 WHERE id=?",
