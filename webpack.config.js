@@ -58,11 +58,11 @@ module.exports = {
                 search: /\{À:"A",Á:"A",(.*?)\}/,
                 replace: ''
             }]
-        }]),
-        new Dotenv({
-            path: './.env', // Path to .env file (this is the default)
-            safe: false, // load .env.example (defaults to "false" which does not use dotenv-safe)
-          })
+        }])
+        // new Dotenv({
+        //     path: './.env', // Path to .env file (this is the default)
+        //     safe: false, // load .env.example (defaults to "false" which does not use dotenv-safe)
+        //   })
     ],
     // Uncomment this for improved debugging messages
     // devtool: 'inline-source-map',
