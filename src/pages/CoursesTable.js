@@ -16,7 +16,6 @@ const BootstrapTooltip = styled(({ className, ...props }) => (
 }));
 
 export default function CoursesTable({basePath, courses, loadTable, setCourses, handleReview, setIsLoading, setPushMessage, handlePublish, courseFilter, setPageNumber, pageNumber}) {
-  console.log(courses);
   const [sortBy, setSortBy] = useState();
   const [ascending, setAscending] = useState(true);
 
@@ -31,26 +30,22 @@ export default function CoursesTable({basePath, courses, loadTable, setCourses, 
   
   const observer = useRef();
   const lastTableElement = useCallback(row => {
-    console.log(row)
-    console.log(observer.current)
+
     if(observer.current){
       observer.current.disconnect();
     }
     
     observer.current = new IntersectionObserver(entries => {
       if(entries[0].isIntersecting){
-        console.log("visible");
         setPageNumber(pageNumber + 1);
         // loadTable();
       }
     })
 
     if(row){
-      console.log("row");
       observer.current.observe(row);
     }
 
-    console.log("hello");
   });
 
   useEffect(() => {    
@@ -58,8 +53,6 @@ export default function CoursesTable({basePath, courses, loadTable, setCourses, 
   }, []);
 
   useEffect(() => {
-    console.log("helllo");
-    console.log(courses);
     var val1 = 0;
     var val2 = 0;
     var val3 = 0;
@@ -75,7 +68,6 @@ export default function CoursesTable({basePath, courses, loadTable, setCourses, 
         val4 += parseInt(course.completed_images) - parseInt(course.published_images);
         val5 += parseInt(course.advanced_images);
         val6 += parseInt(course.available_images);
-        console.log("inside");
       }
 
       setNoOfImages(val1);
@@ -130,56 +122,6 @@ export default function CoursesTable({basePath, courses, loadTable, setCourses, 
     return false;
   }
 
-  // function handlePublish(courseId) {
-  //   setIsLoading(true);
-
-  //   axios({
-  //     method:'post',
-  //     url:`${basePath}/task.php?task=push_image`,
-  //     data: {
-  //       course_id: courseId
-  //     }
-  //   })
-  //   .then((response) => {
-
-  //     var loadJson = {};
-
-  //     if(typeof response.data === "string"){
-  //       const jsonRegex = /{[^}]+}/;
-  //       const jsonMatch = response.data.match(jsonRegex);
-  
-  //       if (jsonMatch) {
-  //         const jsonString = jsonMatch[0];
-  //         loadJson = JSON.parse(jsonString);
-  //       }
-  //     }
-  //     else {
-  //       loadJson = response.data;
-  //     }
-
-  //     if ("failed_image_ids" in loadJson) {
-  //       setPushMessage(`The alt text for ${loadJson.pushed_images} image${loadJson.pushed_images == 1 ? ' was' : 's were'} successfully updated within Canvas. The alt text for the following image ids failed to push to canvas: ${loadJson.failed_image_ids}`);
-  //     }
-  //     else if (loadJson.pushed_images == 0) {
-  //       setPushMessage('Everything is already up to date.');
-  //     }
-  //     else {
-  //       setPushMessage(`Success! The alt text for ${loadJson.pushed_images} image${loadJson.pushed_images == 1 ? ' was' : 's were'} successfully updated within Canvas.`)
-  //     }
-
-  //     loadTable(courseId, loadJson.pushed_images);
-
-  //   })
-  //   .catch((error) => {
-  //     setPushMessage('An error occurred while pushing the alt text to canvas');
-  //   })
-  //   .finally(() => {
-  //     setIsLoading(false);
-  //   });
-
-  // }
-
-  console.log("bye");
   return (
     <div class="container-fluid content">      
         <div class="table-responsive custom-table-responsive">
@@ -241,13 +183,10 @@ export default function CoursesTable({basePath, courses, loadTable, setCourses, 
               </tr>
             </thead>
             <tbody>
-              {console.log(courses)}
               {(courses || []).map((course, index) => {
                 if(course.total_images !== course.published_images){
                   if((courseFilter === "") || (courseFilter !== "" && course.name && course.name.toLowerCase().replaceAll(" ", "").includes(courseFilter.toLowerCase().replaceAll(" ", "")))){
                     if(courses.length === index + 1 && courses.length === (pageNumber * 20 + 20)){
-                      console.log("last element" + " " + (index + 1))
-                      console.log(courses)
                       return (
                         <>
                           <tr scope="row" ref={lastTableElement}>
@@ -268,17 +207,6 @@ export default function CoursesTable({basePath, courses, loadTable, setCourses, 
                           </tr>
                           <tr class="spacer"><td colspan="100"></td></tr>
                         </>
-  
-                        // <Table.Row key={parseInt(course.id)}>
-                        //   <Table.RowHeader id={parseInt(course.id)}><a target="_blank" href={"https://usu.instructure.com/courses/" + course.id}>{course.name}</a></Table.RowHeader>
-                        //   <Table.Cell>{parseInt(course.total_images)}</Table.Cell>
-                        //   <Table.Cell>{parseInt(course.published_images)}</Table.Cell>
-                        //   <Table.Cell>{parseInt(course.completed_images) - parseInt(course.published_images)}</Table.Cell>
-                        //   <Table.Cell>{parseInt(course.advanced_images)}</Table.Cell>
-                        //   <Table.Cell>{parseInt(course.available_images)}</Table.Cell>
-                        //   <Table.Cell><Button color='secondary' onClick={() => handleReview(course.id, course.name)}>Review</Button></Table.Cell>
-                        //   <Table.Cell><Button color='secondary' onClick={() => handlePublish(course.id)}>Publish</Button></Table.Cell>
-                        // </Table.Row>
                       )
                     }
                     else{
@@ -303,16 +231,6 @@ export default function CoursesTable({basePath, courses, loadTable, setCourses, 
                           <tr class="spacer"><td colspan="100"></td></tr>
                         </>
   
-                        // <Table.Row key={parseInt(course.id)}>
-                        //   <Table.RowHeader id={parseInt(course.id)}><a target="_blank" href={"https://usu.instructure.com/courses/" + course.id}>{course.name}</a></Table.RowHeader>
-                        //   <Table.Cell>{parseInt(course.total_images)}</Table.Cell>
-                        //   <Table.Cell>{parseInt(course.published_images)}</Table.Cell>
-                        //   <Table.Cell>{parseInt(course.completed_images) - parseInt(course.published_images)}</Table.Cell>
-                        //   <Table.Cell>{parseInt(course.advanced_images)}</Table.Cell>
-                        //   <Table.Cell>{parseInt(course.available_images)}</Table.Cell>
-                        //   <Table.Cell><Button color='secondary' onClick={() => handleReview(course.id, course.name)}>Review</Button></Table.Cell>
-                        //   <Table.Cell><Button color='secondary' onClick={() => handlePublish(course.id)}>Publish</Button></Table.Cell>
-                        // </Table.Row>
                       )
                     }
                   }
@@ -322,119 +240,5 @@ export default function CoursesTable({basePath, courses, loadTable, setCourses, 
           </table>
         </div>
     </div>
-    // <>
-    //     <Table caption='Courses'>
-    //   <Table.Head renderSortLabel={<ScreenReaderContent>Sort by</ScreenReaderContent>}>
-    //     <Table.Row>
-    //       <Table.ColHeader 
-    //         id='name' 
-    //         onRequestSort={onSort}
-    //         sortDirection={sortBy === 'name' ? direction : 'none'}
-    //       >
-    //         <span>
-    //           Course Name 
-    //         </span>
-    //       </Table.ColHeader>
-
-    //       <Table.ColHeader 
-    //         id='total_images' 
-    //         onRequestSort={onSort}
-    //         sortDirection={sortBy === 'total_images' ? direction : 'none'}
-    //       >
-    //         <BootstrapTooltip title="Total Images in Use without Alt Text">
-    //           <span> 
-    //               <i class="fa-solid fa-circle-info"></i> &nbsp; Total ({noOfImages})
-    //           </span>
-    //         </BootstrapTooltip>
-    //       </Table.ColHeader>
-
-    //       <Table.ColHeader 
-    //         id='published_images' 
-    //         onRequestSort={onSort}
-    //         sortDirection={sortBy === 'published_images' ? direction : 'none'}
-    //       >
-    //         <BootstrapTooltip title="Alt text added and published">
-    //           <span> 
-    //               <i class="fa-solid fa-circle-info"></i> &nbsp; Published ({publishedImages})  
-    //           </span>
-    //         </BootstrapTooltip>
-    //       </Table.ColHeader>
-
-    //       <Table.ColHeader 
-    //         id='images_to_publish' 
-    //         onRequestSort={onSort}
-    //         sortDirection={sortBy === 'images_to_publish' ? direction : 'none'}
-    //       >
-    //       <BootstrapTooltip title="Alt text has been added, but not published">
-    //         <span> 
-    //             <i class="fa-solid fa-circle-info"></i>  &nbsp; Ready to Publish ({imagesToPublish}) 
-    //         </span>
-    //       </BootstrapTooltip>
-
-    //       </Table.ColHeader>
-    
-    //       <Table.ColHeader 
-    //         id='advanced_images' 
-    //         onRequestSort={onSort}
-    //         sortDirection={sortBy === 'advanced_images' ? direction : 'none'}
-    //       >
-    //         <BootstrapTooltip title="Imaged have been marked as advanced, but do not have alt text">
-    //           <span> 
-    //               <i class="fa-solid fa-circle-info"></i> Advanced ({advancedImagesToPublish}) &nbsp;
-    //           </span>
-    //         </BootstrapTooltip>
-
-    //       </Table.ColHeader>
-
-    //       <Table.ColHeader 
-    //         id='available_images' 
-    //         onRequestSort={onSort}
-    //         sortDirection={sortBy === 'available_images' ? direction : 'none'}
-    //       >
-    //         <BootstrapTooltip title="Images that are currently in progress and not availalbe">
-    //           <span> 
-    //               <i class="fa-solid fa-circle-info"></i>  &nbsp; In Progress ({availableToPublish}) 
-    //           </span>
-    //         </BootstrapTooltip>
-    //       </Table.ColHeader>
-
-    //       <Table.ColHeader id='review'>
-    //         <BootstrapTooltip title="Shows images with alt text that have not bee published.">
-    //           <span> 
-    //               <i class="fa-solid fa-circle-info"></i> &nbsp; Review
-    //           </span>
-    //         </BootstrapTooltip>
-    //       </Table.ColHeader>
-
-    //       <Table.ColHeader id='publish_course'>
-    //         <BootstrapTooltip title="Publish all images with alt text from the course.">
-    //           <span> 
-    //               <i class="fa-solid fa-circle-info"></i> &nbsp;  Publish All 
-    //           </span>
-    //         </BootstrapTooltip>
-    //       </Table.ColHeader>
-    //     </Table.Row>
-    //   </Table.Head>
-    //   <Table.Body>
-    //     {(courses || []).map(course => {
-    //       if(course.total_images !== course.published_images){
-    //         if((courseFilter === "") || (courseFilter !== "" && course.name && course.name.toLowerCase().replaceAll(" ", "").includes(courseFilter.toLowerCase().replaceAll(" ", "")))){
-    //           return (
-    //             <Table.Row key={parseInt(course.id)}>
-    //               <Table.RowHeader id={parseInt(course.id)}><a target="_blank" href={"https://usu.instructure.com/courses/" + course.id}>{course.name}</a></Table.RowHeader>
-    //               <Table.Cell>{parseInt(course.total_images)}</Table.Cell>
-    //               <Table.Cell>{parseInt(course.published_images)}</Table.Cell>
-    //               <Table.Cell>{parseInt(course.completed_images) - parseInt(course.published_images)}</Table.Cell>
-    //               <Table.Cell>{parseInt(course.advanced_images)}</Table.Cell>
-    //               <Table.Cell>{parseInt(course.available_images)}</Table.Cell>
-    //               <Table.Cell><Button color='secondary' onClick={() => handleReview(course.id, course.name)}>Review</Button></Table.Cell>
-    //               <Table.Cell><Button color='secondary' onClick={() => handlePublish(course.id)}>Publish</Button></Table.Cell>
-    //             </Table.Row>
-    //           )
-    //         }
-    //       }
-    //     })}
-    //   </Table.Body>
-    // </Table></>
   );
 }

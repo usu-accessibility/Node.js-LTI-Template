@@ -33,15 +33,9 @@ export default function ReviewPublishPage(props) {
 
   function updateMondayBoard(courseId, pushed_images, needs_conversion){
     for(var idx = 0; idx < courses.length;idx++){
-      console.log(courses[idx].id)
-      console.log(courseId)
-      console.log(courses[idx])
-      console.log(courses[idx].total_images)
-      console.log((Number(courses[idx].published_images) + pushed_images).toString());
-
       if(courses[idx].id === courseId){
         if(courses[idx].total_images === (Number(courses[idx].published_images) + pushed_images).toString()){
-          console.log("innininininin");
+          
           var data = {
             "course_id": courseId,
             "action": "updateMondayBoard",
@@ -64,7 +58,7 @@ export default function ReviewPublishPage(props) {
                 }
               })
               .then((response) => {
-                console.log(response);
+                
               })
               .catch((error) => {
 
@@ -100,11 +94,6 @@ export default function ReviewPublishPage(props) {
       else {
         loadJson = response.data;
       }
-      
-      console.log(loadJson);
-      console.log("pageNumber");
-      console.log(pageNumber);
-      console.log(courses);
 
       if(courses.length === 0){
         setCourses(loadJson)
@@ -114,9 +103,6 @@ export default function ReviewPublishPage(props) {
           return [...prevValues, ...loadJson]
         });
       }
-
-      console.log("courses");
-      console.log(courses);
 
       if(courseId){
         updateMondayBoard(courseId, pushed_images, needs_conversion);
@@ -230,7 +216,6 @@ export default function ReviewPublishPage(props) {
         loadJson = response.data;
       }
 
-      console.log(loadJson)
       if ("failed_image_ids" in loadJson) {
         setPushMessage(`The alt text for ${loadJson.pushed_images} image${loadJson.pushed_images == 1 ? ' was' : 's were'} successfully updated within Canvas. The alt text for the following image ids failed to push to canvas: ${loadJson.failed_image_ids}`);
       }
@@ -253,7 +238,6 @@ export default function ReviewPublishPage(props) {
 
   }
 
-  console.log(!reviewOpen);
   return (
     <>
       {!reviewOpen && <div className='space-children'>

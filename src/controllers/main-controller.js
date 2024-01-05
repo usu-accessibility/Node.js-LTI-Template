@@ -20,13 +20,6 @@ async function getCanvasPage(courseId){
     return await sql.readDataOnCondition(table_name, 'lms_id', courseId, columns);
 }
 
-// async function getDatabaseTables(courseId){
-//     var table_name = 'at_image';
-//     var columns = "canvas_page";
-
-//     return await sql.readDataOnCondition(table_name, 'lms_id', courseId, columns);
-// }
-
 async function getDatabaseTables(table) {
     let table_name, columns;
   
@@ -305,7 +298,6 @@ async function getAdvancedImage(advancedType, selectedCourseId, userId, session)
         image = await sql.queryFirstRow(imageQuery, [advancedType]);
       }
     }
-    console.log(image)
     return image;
   } else {
     imageQuery = `
@@ -824,8 +816,6 @@ async function countAvailableImages(courseId) {
 
 async function getReviewPageTableValues(pageNumber) {
   try {
-    console.log("page number");
-    console.log(pageNumber);
     const reviewPageTableImagesCount = await sql.queryFirstRow(
       `SELECT
         c.id AS id,
@@ -926,8 +916,6 @@ async function markImageAsUnusable(imageId) {
       [courseInfo[0]['course_id']]
     );
 
-    console.log(courseName);
-
     courseInfo[0]['course_name'] = courseName[0]['course_name'];
     courseInfo[0]['mark_as_unusable'] = true;
 
@@ -947,7 +935,6 @@ async function markImageAsUnusable(imageId) {
     // URL of the API or endpoint you want to send the POST request to
     const url = 'https://apswgda2p5.execute-api.us-east-1.amazonaws.com/default/getData';
 
-    console.log(courseInfo[0]);
     // Data to be sent in the POST request (as a JSON string)
     const data = JSON.stringify(courseInfo[0]);
 
@@ -1092,8 +1079,6 @@ async function setPushedToCanvas(imageId) {
 
 async function updatePage(courseId, pageUrl, body) {
   try {
-    console.log("body page");
-    console.log(body);
 
     // Use the canvasService.curlPut function to perform the PUT request
     const apiUrl = `courses/${courseId}/pages/${pageUrl}`;
@@ -1168,7 +1153,7 @@ async function updateCourseImages(images) {
           }
   
           const response = await canvas_service.curlGet(canvasPageUrl);
-          console.log(response);
+          
           if (response && response.errors) {
             const message = response.errors[0].message;
             if (message === "The specified resource does not exist.") {
@@ -1422,8 +1407,6 @@ async function findUsedImages(images, body, courseId, imagesInUse, value, type) 
           break;
         }
       }
-
-      console.log(needsAltText);
 
       if (needsAltText && !(await imageInArray(image, imagesInUse))) {
         if (type === 'pages') {

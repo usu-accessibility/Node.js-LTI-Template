@@ -16,35 +16,36 @@ module.exports = function(router, session){
   }
 
   router.post('/reset_users', async (req, res) => {
-    try{
+    try {
+      const requestBody = req.body;
+
+      if (!requestBody || !('oauth_consumer_key' in requestBody)) {
+        const data = {
+          error: true,
+          message: 'invalid request body',
+        };
+        return res.json(data);
+      }
+  
+      // Assuming Action.resetAlltheUsers() is a synchronous function
+      // If it's asynchronous, handle it accordingly (e.g., use async/await)
+      await action.resetAlltheUsers();
+  
+      // Send a success response if resetAlltheUsers() doesn't throw an error
+      const successData = {
+        success: true,
+        message: 'Users reset successfully',
+      };
+  
+      return res.json(successData);
     }
     catch(error){
         console.log(error);
     }
-    const requestBody = req.body;
-
-    if (!requestBody || !('oauth_consumer_key' in requestBody)) {
-      const data = {
-        error: true,
-        message: 'invalid request body',
-      };
-      return res.json(data);
-    }
-
-    // Assuming Action.resetAlltheUsers() is a synchronous function
-    // If it's asynchronous, handle it accordingly (e.g., use async/await)
-    await action.resetAlltheUsers();
-
-    // Send a success response if resetAlltheUsers() doesn't throw an error
-    const successData = {
-      success: true,
-      message: 'Users reset successfully',
-    };
-
-    return res.json(successData);
   });
 
   router.post('/get_image_name', async (req, res) => {
+    try {
       const requestBody = req.body;
       if (!requestBody || !('image_id' in requestBody)) {
         const data = {
@@ -59,10 +60,15 @@ module.exports = function(router, session){
       // If it's asynchronous, handle it accordingly (e.g., use async/await)
       const data = await action.getImageName(requestBody.image_id, requestBody.course_id);
       return res.json(data);
+    }
+    catch(error){
+        console.log(error);
+    }
   });
 
 
   router.post('/get_database_tables', async (req, res) => {
+    try {
       const requestBody = req.body;
     
       if (
@@ -85,11 +91,16 @@ module.exports = function(router, session){
       // If it's asynchronous, handle it accordingly (e.g., use async/await)
       const data = await action.getDatabaseTables(requestBody.table);
       return res.json(data);
+    }
+    catch(error){
+        console.log(error);
+    }
   });
 
   router.post('/load_images', async (req, res) => {
+    try {
       const requestBody = req.body;
-      console.log(requestBody);
+      
       if (
         (!requestBody || !('oauth_consumer_key' in requestBody) ||
           !('course_id' in requestBody) ||
@@ -123,8 +134,6 @@ module.exports = function(router, session){
       }
     
       const images = await action.getCourseImages(courseId);
-
-      console.log(images);
 
       if (images.error) {
         const data = {
@@ -164,9 +173,14 @@ module.exports = function(router, session){
         };
         return res.json(data);
       }
+    }
+    catch(error){
+        console.log(error);
+    }
   });
 
   router.post('/get_alt_text_updated_user_name', async (req, res) => {
+    try {
       // retrieve and validate the request body
       const requestBody = req.body;
     
@@ -190,12 +204,17 @@ module.exports = function(router, session){
           };
           return res.json(data);
       }
+    }
+    catch(error){
+        console.log(error);
+    }
   });
 
   router.post('/set_image_completed', async (req, res) => {
+    try {
       // retrieve and validate the request body
       const requestBody = req.body;
-      console.log(requestBody)
+      
       if (
         !requestBody ||
         !('image_id' in requestBody) ||
@@ -276,9 +295,14 @@ module.exports = function(router, session){
         };
         return res.json(data);
       }
+    }
+    catch(error){
+        console.log(error);
+    }
   });
 
   router.post('/push_image', async (req, res) => {
+    try {
       // Authorize the request
       await middleware.authorize(res, session);
     
@@ -331,9 +355,14 @@ module.exports = function(router, session){
       await action.addTotalImagesToCourse(courseId);
       // Action.updateMondayBoard(courseId);
       return res.json(data);
+    }
+    catch(error){
+        console.log(error);
+    }
   });
 
   router.post('/release_needs_conversion', async (req, res) => {
+    try {
       // Authorize the request
       await middleware.authorize(res, session);
     
@@ -353,9 +382,14 @@ module.exports = function(router, session){
       const result = await action.updateNeedsConversion(courseId);
     
       return res.json(data);
+    }
+    catch(error){
+        console.log(error);
+    }
   });
 
   router.post('/skip_image', async (req, res) => {
+    try {
       // retrieve and validate the request body
       const requestBody = req.body;
     
@@ -382,10 +416,16 @@ module.exports = function(router, session){
       const data = {
         error: false,
       };
+
       return res.json(data);
+    }
+    catch(error){
+        console.log(error);
+    }
   });
 
   router.post('/mark_image_as_advanced', async (req, res) => {
+    try {
       // retrieve and validate the request body
       const requestBody = req.body;
     
@@ -413,9 +453,14 @@ module.exports = function(router, session){
         error: false,
       };
       return res.json(data);
+    }
+    catch(error){
+        console.log(error);
+    }
   });
 
   router.post('/update_image_alt_text', async (req, res) => {
+    try {
       // retrieve and validate the request body
       const requestBody = req.body;
     
@@ -439,9 +484,14 @@ module.exports = function(router, session){
       );
     
       return res.json(data);
+    }
+    catch(error){
+        console.log(error);
+    }
   });
 
   router.post('/update_user_alt_text', async (req, res) => {
+    try {
       // retrieve and validate the request body
       const requestBody = req.body;
     
@@ -465,10 +515,15 @@ module.exports = function(router, session){
       );
     
       return res.json(data);
+    }
+    catch(error){
+        console.log(error);
+    }
   });
 
 
   router.post('/mark_image_as_unusable', async (req, res) => {
+    try {
       // retrieve and validate the request body
       const requestBody = req.body;
     
@@ -495,6 +550,10 @@ module.exports = function(router, session){
         course_id: courseId,
       };
       return res.json(data);
+    }
+    catch(error){
+        console.log(error);
+    }
   });
 }
 

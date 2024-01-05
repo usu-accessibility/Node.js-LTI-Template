@@ -28,8 +28,7 @@ async function queryFirstRow(query, values){
         reject(err);
         return;
       }
-      console.log('Data inserted successfully.');
-      console.log(query);
+
       resolve(results);
     });
   })
@@ -56,8 +55,7 @@ async function createData(table_name, rows) {
           reject(err);
           return;
         }
-        console.log('Data inserted successfully.');
-        console.log(sql);
+
         resolve(results);
       });
       });
@@ -74,7 +72,7 @@ async function readData(table_name, ...columns) {
         reject(err);
         return;
       }
-      console.log('Data read successfully.');
+      
       resolve(results);
     });
   })
@@ -90,7 +88,7 @@ async function readDataOnCondition(table_name, id, id_value, ...columns) {
         reject(err);
         return;
       }
-      console.log('Data read successfully.');
+      
       resolve(results);
     });
   })
@@ -116,7 +114,7 @@ async function updateData(table_name, id, id_value, values) {
         reject(err);
         return;
       }
-      console.log('Data updated successfully.');
+      
       resolve(results);
     });
   })
@@ -132,7 +130,7 @@ async function deleteData(table_name, id, id_value) {
         reject(err);
         return;
       }
-      console.log('Data deleted successfully.');
+      
       resolve(results);
     });
   })

@@ -81,41 +81,6 @@ export default function ImageEditor(props) {
           console.log(error);
         })
   }
-
-
-  // function getImageName(currentImageId){
-  //   console.log(currentImageId);
-  //     axios({ 
-  //       method:'post',
-  //       url:`${props.basePath}/task.php?task=get_image_name`,
-  //       data: {
-  //         image_id: currentImageId
-  //       }
-  //     })
-  //     .then((response) => {
-
-  //       var loadJson = {};
-
-  //       if(typeof response.data === "string"){
-  //         const jsonRegex = /{[^}]+}/;
-  //         const jsonMatch = response.data.match(jsonRegex);
-    
-  //         if (jsonMatch) {
-  //           const jsonString = jsonMatch[0];
-  //           loadJson = JSON.parse(jsonString);
-  //         }
-  //       }
-  //       else {
-  //         loadJson = response.data;
-  //       }
-
-  //       setImageName(loadJson.display_name);
-
-  //     })
-  //     .catch((error) => {
-  //       console.log(error);
-  //     })
-  // }
   
   useEffect(()=>{
     getUserDetails();

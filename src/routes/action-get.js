@@ -30,8 +30,7 @@ module.exports = function(router, session){
     router.get('/get_active_courses', async (req, res) => {
         try {
             const user = await action.getUserByLmsId(session.canvas_data.userID);
-            console.log("hello world");
-            console.log(user);
+
             if (user.success) {
                 const userId = user.user_id;
 
@@ -45,18 +44,8 @@ module.exports = function(router, session){
                     const courseId = element.course_id;
                     const courseName = await action.getCourseName(courseId);
                     courses.push({ id: courseId, course_name: courseName });
-                    console.log({ id: courseId, course_name: courseName })
                 }
 
-                // await courseList.forEach(async (element) => {
-                //     const courseId = element.course_id;
-                //     const courseName = await action.getCourseName(courseId);
-                //     courses.push({ id: courseId, course_name: courseName });
-                //     console.log({ id: courseId, course_name: courseName })
-                // });
-
-                console.log("value");
-                console.log(courses);
                 return res.json(courses);
             } else {
                 const data = {
@@ -73,23 +62,10 @@ module.exports = function(router, session){
         }
     });
 
-    // const performTask = async (value) => {
-    //   const startTime = Date.now();
-
-    //   while (true) {
-    //       if (Date.now() - startTime > 300000) {
-    //           return false; // timeout, function took longer than 300 seconds
-    //       }
-    //   }
-    // };
-
     router.get('/update_course_id', async (req, res) => {
         try {
             const user = await action.getUserByLmsId(session.canvas_data.userID); // Assuming session data is available
-            console.log("update_course_id");
-            console.log(user);
-            console.log(req.query.lock);
-            console.log(req.query.lock !== null)
+
             if (user.success) {
                 const userId = user.user_id;
         
@@ -99,17 +75,12 @@ module.exports = function(router, session){
                         [req.query.image_id]
                     );
 
-                    console.log(editorValue)
-                    // console.log(editorValue[0].editor !== userId)
-                    // console.log(editorValue[0].editor !== 0)
-
                     if (editorValue.length !== 0 && editorValue[0].editor !== 0 && editorValue[0].editor !== userId) {
                         const data = {
                             error: "Image has been locked by another user. Loading next image.",
                         };
                         return res.json(data);
                     } else {
-                        console.log(userId + " " + req.query.image_id + " " + req.query.lock)
                         var result = await action.updateEditorId(userId, req.query.image_id, req.query.lock);
 
                         // Assuming you want to perform a task after updating the editor ID
@@ -190,9 +161,6 @@ module.exports = function(router, session){
                         return res.json(isValidateAdvancedType);
                     }
 
-                    console.log("advenced types");
-                    console.log(req.query.advanced_type);
-
                     image = await action.getAdvancedImage(req.query.advanced_type, selectedCourseId, userId, session);
                 } else {
                     image = await action.getImage(selectedCourseId, userId, session);
@@ -234,68 +202,12 @@ module.exports = function(router, session){
     router.get('/get_courses_info', async (req, res) => {
         try {
             let pageNumber = req.query.pageNumber;
-
-            console.log(pageNumber);
-
             var results = await action.getReviewPageTableValues(pageNumber);
-            console.log("final result ");
-            console.log(results)
-                // const courseName = result['course_name']
-                // const totalImages = result['total_images']
-                // const completedImages = result['completed_images']
-                // const publishedImages = result['published_images']
-                // const advancedImages = result['advanced_images']
-                // const availableImages = result['available_images']
-
-                // const courseName = await action.getCourseName(courseId);
-                // const totalImages = await action.countTotalImages(courseId);
-                // const completedImages = await action.countCompletedImages(courseId);
-                // const publishedImages = await action.countPublishedImages(courseId);
-                // const advancedImages = await action.countAdvancedImages(courseId);
-                // const availableImages = await action.countAvailableImages(courseId);
-
-                // console.log(idx + " " + courseIds.length);
-
-                // data.push({
-                //     id: courseId,
-                //     name: courseName,
-                //     total_images: totalImages,
-                //     completed_images: completedImages,
-                //     published_images: publishedImages,
-                //     advanced_images: advancedImages,
-                //     available_images: availableImages,
-                // });
-            // }
-
-            // courseIds.forEach((courseId) => {
-            //     const courseName = await action.getCourseName(courseId);
-            //     const totalImages = await action.countTotalImages(courseId);
-            //     const completedImages = await action.countCompletedImages(courseId);
-            //     const publishedImages = await action.countPublishedImages(courseId);
-            //     const advancedImages = await action.countAdvancedImages(courseId);
-            //     const availableImages = await action.countAvailableImages(courseId);
-
-            //     data.push({
-            //         id: courseId,
-            //         name: courseName,
-            //         total_images: totalImages,
-            //         completed_images: completedImages,
-            //         published_images: publishedImages,
-            //         advanced_images: advancedImages,
-            //         available_images: availableImages,
-            //     });
-            // });w
             return res.json(results);
         }
         catch(error){
             console.log(error);
-        }
-        // const courseIds = await action.getCourseIds();
-        // const data = [];
-        // for(var idx = 0; idx < courseIds.length; idx++){
-
-        //     var courseId = courseIds[idx];
-        
+        }        
     });
 
     router.get('/get_completed_images', async (req, res) => {
