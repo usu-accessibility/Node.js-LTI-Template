@@ -57,13 +57,14 @@ async function curlGet(url) {
 
 async function curlPut(url, data) {
   try {
-
+    console.log(data);
     // Perform the PUT request using axios
     const response = await axios.put(`https://usu.instructure.com/api/v1/${url}`, data, {
       headers: tokenHeader,
     });
 
     // Return the response data
+    console.log(response);
     return response.data;
   } catch (error) {
     // Handle errors

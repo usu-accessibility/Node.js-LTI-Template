@@ -16,6 +16,11 @@ module.exports = function(router, session){
   }
 
   router.post('/reset_users', async (req, res) => {
+    try{
+    }
+    catch(error){
+        console.log(error);
+    }
     const requestBody = req.body;
 
     if (!requestBody || !('oauth_consumer_key' in requestBody)) {
@@ -301,7 +306,6 @@ module.exports = function(router, session){
           message: 'there are no images that are ready to be pushed back to canvas',
         };
         return res.json(data);
-        return;
       }
     
       let pushedImages = 0;

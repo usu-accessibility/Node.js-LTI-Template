@@ -4,6 +4,7 @@ const ADVANCED_TYPES = require('../constants/advanced_types');
 
 const { DateTime } = require('luxon'); // Use a library like luxon for handling dates
 const axios = require('axios');
+const { CoPresentOutlined } = require('@mui/icons-material');
 
 async function testDB(){
     var table_name = 'at_image';
@@ -1085,16 +1086,23 @@ async function setPushedToCanvas(imageId) {
       });
     }
   
-    setPushedToCanvas(image.id);
+    await setPushedToCanvas(image.id);
     return body;
 }
 
 async function updatePage(courseId, pageUrl, body) {
   try {
+    console.log("body page");
+    console.log(body);
+
     // Use the canvasService.curlPut function to perform the PUT request
     const apiUrl = `courses/${courseId}/pages/${pageUrl}`;
-    const data = { 'wiki_page[body]': body };
-    
+    const data = { 
+      'wiki_page' : { 
+        'body': body 
+      }
+    };
+
     const response = await canvas_service.curlPut(apiUrl, data);
 
     // Handle the response as needed
@@ -1107,19 +1115,27 @@ async function updatePage(courseId, pageUrl, body) {
 
 // Update Assignment Description
 async function updateAssignment(courseId, assignmentId, body) {
-    const data = { 'assignment[description]': body };
+    const data = { 
+      'assignment' : {
+        'description': body 
+      }
+    };
     await canvas_service.curlPut(`courses/${courseId}/assignments/${assignmentId}`, data);
 }
   
 // Update Discussion Message
 async function updateDiscussion(courseId, discussionId, body) {
-    const data = { message: body };
+    const data = { message : body };
     await canvas_service.curlPut(`courses/${courseId}/discussion_topics/${discussionId}`, data);
 }
   
 // Update Quiz Description
 async function updateQuizDescription(courseId, quizId, body) {
-    const data = { 'quiz[description]': body };
+    const data = { 
+      'quiz' : {
+        'description': body
+      }
+    };
     await canvas_service.curlPut(`courses/${courseId}/quizzes/${quizId}`, data);
 }
 
@@ -1152,8 +1168,8 @@ async function updateCourseImages(images) {
           }
   
           const response = await canvas_service.curlGet(canvasPageUrl);
-  
-          if (response.errors) {
+          console.log(response);
+          if (response && response.errors) {
             const message = response.errors[0].message;
             if (message === "The specified resource does not exist.") {
               continue;
@@ -1163,7 +1179,7 @@ async function updateCourseImages(images) {
   
           let body = response.body;
           const oldBody = body;
-          body = replaceImages(body, image, courseId);
+          body = await replaceImages(body, image, courseId);
           if (body !== oldBody) {
             pushedImages++;
           }
@@ -1206,7 +1222,7 @@ async function updateCourseImages(images) {
   
           let body = response.description;
           const oldBody = body;
-          body = replaceImages(body, image, courseId);
+          body = await replaceImages(body, image, courseId);
           if (body !== oldBody) {
             pushedImages++;
           }
@@ -1249,7 +1265,7 @@ async function updateCourseImages(images) {
   
           let body = response.message;
           const oldBody = body;
-          body = replaceImages(body, image, courseId);
+          body = await replaceImages(body, image, courseId);
           if (body !== oldBody) {
             pushedImages++;
           }
