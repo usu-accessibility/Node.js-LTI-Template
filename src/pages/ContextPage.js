@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Button, Text, Flex, Transition, Overlay, Mask, Spinner, SVGIcon } from '@instructure/ui';
+import { Button, Text, Flex, Transition, Overlay, Mask, Spinner, SVGIcon, CloseButton} from '@instructure/ui';
 import { IconMiniArrowEndSolid, IconMiniArrowStartSolid } from '@instructure/ui-icons'
 
 import DOMPurify from 'dompurify';
@@ -159,7 +159,7 @@ export default function ContextPage(props) {
             shouldContainFocus 
             >
             <Mask fullscreen>
-            {(props.modalOpen && isLoading) && <i class="fa-regular fa-circle-xmark fa-2x" onClick={() => props.onViewContextChange(false)}></i>}
+            {(props.modalOpen && isLoading) && <span style={{float:"right", marginLeft:"1rem"}}><CloseButton size="medium" screenReaderLabel="Close" onClick={() => props.onViewContextChange(false)} /></span>}
                 <Flex direction='column' justifyItems='center' alignItems='center'>
                     {isFirstLoad && 
                         <Flex.Item>

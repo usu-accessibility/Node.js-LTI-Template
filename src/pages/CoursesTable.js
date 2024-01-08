@@ -1,19 +1,19 @@
 import React, { useState, useEffect , useRef, useCallback } from 'react';
-import { Table, Button, Text, ScreenReaderContent } from "@instructure/ui";
-import Tooltip, { tooltipClasses } from '@mui/material/Tooltip';
+import {Button, Tooltip} from "@instructure/ui";
+// import Tooltip, { tooltipClasses } from '@mui/material/Tooltip';
 import { styled } from '@mui/material/styles';
 
-const BootstrapTooltip = styled(({ className, ...props }) => (
-  <Tooltip {...props} arrow classes={{ popper: className }}/>
-))(({ theme }) => ({
-  [`& .${tooltipClasses.arrow}`]: {
-    color: theme.palette.common.black,
-  },
-  [`& .${tooltipClasses.tooltip}`]: {
-    backgroundColor: theme.palette.common.black,
-    fontSize: 15
-  },
-}));
+// const BootstrapTooltip = styled(({ className, ...props }) => (
+//   <Tooltip {...props} arrow classes={{ popper: className }}/>
+// ))(({ theme }) => ({
+//   [`& .${tooltipClasses.arrow}`]: {
+//     color: theme.palette.common.black,
+//   },
+//   [`& .${tooltipClasses.tooltip}`]: {
+//     backgroundColor: theme.palette.common.black,
+//     fontSize: 15
+//   },
+// }));
 
 export default function CoursesTable({basePath, courses, loadTable, setCourses, handleReview, setIsLoading, setPushMessage, handlePublish, courseFilter, setPageNumber, pageNumber}) {
   const [sortBy, setSortBy] = useState();
@@ -132,53 +132,96 @@ export default function CoursesTable({basePath, courses, loadTable, setCourses, 
                   Course Name
                 </th>
                 <th scope="col">
-                  <BootstrapTooltip title="Total Images in Use without Alt Text">
+                  {/* <BootstrapTooltip title="Total Images in Use without Alt Text"> */}
+                  <Tooltip
+                    renderTip='Total Images in Use without Alt Text'
+                    as={Button}
+                    onShowContent={() => console.log('showing')}
+                    onHideContent={() => console.log('hidden')}
+                  >
                       <span> 
                           <i class="fa-solid fa-circle-info"></i> &nbsp; Total ({noOfImages})
                       </span>
-                  </BootstrapTooltip>
+                  </Tooltip>
+                  {/* </BootstrapTooltip> */}
                 </th>
                 <th scope="col">
-                  <BootstrapTooltip title="Alt text added and published">
+                  <Tooltip
+                    renderTip='Alt text added and published'
+                    as={Button}
+                    onShowContent={() => console.log('showing')}
+                    onHideContent={() => console.log('hidden')}
+                  >
+                  {/* <BootstrapTooltip title="Alt text added and published"> */}
                       <span> 
                           <i class="fa-solid fa-circle-info"></i> &nbsp; Published ({publishedImages})  
                       </span>
-                  </BootstrapTooltip>
+                  </Tooltip>
                 </th>
                 <th scope="col">
-                  <BootstrapTooltip title="Alt text has been added, but not published">
+                  <Tooltip
+                    renderTip='Alt text has been added, but not published'
+                    as={Button}
+                    onShowContent={() => console.log('showing')}
+                    onHideContent={() => console.log('hidden')}
+                  >
+                  {/* <BootstrapTooltip title="Alt text has been added, but not published"> */}
                       <span> 
                           <i class="fa-solid fa-circle-info"></i>  &nbsp; Ready to Publish ({imagesToPublish}) 
                       </span>
-                  </BootstrapTooltip>
+                  </Tooltip>
                 </th>
                 <th scope="col">
-                  <BootstrapTooltip title="Imaged have been marked as advanced, but do not have alt text">
+                  <Tooltip
+                    renderTip='Imaged have been marked as advanced, but do not have alt text'
+                    as={Button}
+                    onShowContent={() => console.log('showing')}
+                    onHideContent={() => console.log('hidden')}
+                  >
+                  {/* <BootstrapTooltip title="Imaged have been marked as advanced, but do not have alt text"> */}
                       <span> 
                           <i class="fa-solid fa-circle-info"></i> Advanced ({advancedImagesToPublish}) &nbsp;
                       </span>
-                  </BootstrapTooltip>
+                  </Tooltip>
                 </th>
                 <th scope="col">
-                  <BootstrapTooltip title="Images that are currently in progress and not availalbe">
+                  <Tooltip
+                    renderTip='Images that are currently in progress and not availalbe'
+                    as={Button}
+                    onShowContent={() => console.log('showing')}
+                    onHideContent={() => console.log('hidden')}
+                  >
+                  {/* <BootstrapTooltip title="Images that are currently in progress and not availalbe"> */}
                     <span> 
                         <i class="fa-solid fa-circle-info"></i>  &nbsp; In Progress ({availableToPublish}) 
                     </span>
-                  </BootstrapTooltip>
+                  </Tooltip>
                 </th>
                 <th scope="col">
-                  <BootstrapTooltip title="Shows images with alt text that have not bee published.">
+                  <Tooltip
+                    renderTip='Shows images with alt text that have not bee published.'
+                    as={Button}
+                    onShowContent={() => console.log('showing')}
+                    onHideContent={() => console.log('hidden')}
+                  >
+                  {/* <BootstrapTooltip title="Shows images with alt text that have not bee published."> */}
                     <span> 
                         <i class="fa-solid fa-circle-info"></i> &nbsp; Review
                     </span>
-                  </BootstrapTooltip>
+                  </Tooltip>
                 </th>
                 <th scope="col">
-                  <BootstrapTooltip title="Publish all images with alt text from the course.">
+                  <Tooltip
+                    renderTip='Publish all images with alt text from the course.'
+                    as={Button}
+                    onShowContent={() => console.log('showing')}
+                    onHideContent={() => console.log('hidden')}
+                  >
+                  {/* <BootstrapTooltip title="Publish all images with alt text from the course."> */}
                     <span> 
                         <i class="fa-solid fa-circle-info"></i> &nbsp;  Publish All 
                     </span>
-                  </BootstrapTooltip>
+                  </Tooltip>
                 </th>
               </tr>
             </thead>

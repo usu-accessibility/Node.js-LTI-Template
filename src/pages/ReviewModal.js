@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import ReactDOM from 'react-dom';
-import {Mask, Spinner, Checkbox, Grid, Img, Alert, Flex, TextArea, ScreenReaderContent, Button, Overlay } from '@instructure/ui';
+import {Mask, Spinner, Checkbox, Grid, Img, Alert, Flex, TextArea, ScreenReaderContent, Button, Overlay, CloseButton } from '@instructure/ui';
 import DOMPurify from 'dompurify';
 import AlertModel from './Alert';
 import Avatar from './Avatar';
@@ -335,8 +335,11 @@ export default function ReviewModal({ basePath, open, onDismiss, courseUnderRevi
                                         />
                                     </div>
                                     <div className='container-fluid review-page-button'>
-                                        <button type="button" class="btn btn-outline-primary" onClick={() => {setImageId(image.image_id);setViewContext(true);}}>View Context</button>
-                                        <button type="button" class="btn btn-outline-primary" onClick={() => {markImageAsUnusable(image.image_id);}}>Needs Conversion</button>
+                                        <Button color="primary" margin="small" onClick={() => {setImageId(image.image_id);setViewContext(true);}}>View Context</Button>
+                                        <Button color="primary" margin="small" onClick={() => {markImageAsUnusable(image.image_id);}}>Needs Conversion</Button>
+
+                                        {/* <button type="button" class="btn btn-outline-primary" onClick={() => {setImageId(image.image_id);setViewContext(true);}}>View Context</button> */}
+                                        {/* <button type="button" class="btn btn-outline-primary" onClick={() => {markImageAsUnusable(image.image_id);}}>Needs Conversion</button> */}
                                         <Button
                                             color='success'
                                             margin='xxx-small'
@@ -382,7 +385,7 @@ export default function ReviewModal({ basePath, open, onDismiss, courseUnderRevi
         <>
             <div className='container-fluid'>
                 <div className='container-fluid'>
-                    {!viewContext && <h2 style={{marginBottom:'2rem', marginTop:'1rem'}}>Reviewing: {courseUnderReview.courseName} <span style={{ float:'right'}}><Button color='success' onClick={() => {handleInternalPublish()}} >Publish All</Button><button type="button" class="btn btn-outline-primary" style={{marginLeft:'0.5rem'}} onClick = {onDismiss}><i class="fa-solid fa-xmark" style={{padding:"0rem", fontSize:'1.5rem'}}></i></button></span></h2>}
+                    {!viewContext && <h2 style={{marginBottom:'2rem', marginTop:'1rem'}}>Reviewing: {courseUnderReview.courseName} <span style={{ float:'right'}}><Button color='success' onClick={() => {handleInternalPublish()}} >Publish All</Button><CloseButton size="medium" screenReaderLabel="Close" onClick = {onDismiss} margin='small small small small' /></span></h2>}
                 </div>
                 <div className='container-fluid'>
                     {!viewContext &&
@@ -405,7 +408,8 @@ export default function ReviewModal({ basePath, open, onDismiss, courseUnderRevi
                                         <div className='space-children' id="div1">
                                             {renderCompletedImages(imageId)}
                                         </div>
-                                        {<i class="fa-solid fa-circle-xmark fa-2x" style={{padding:"0rem"}} onClick={() => {setImageId("");setViewContext(false)}}></i>}
+                                        { <span style={{ float:'right'}}><CloseButton size="medium" screenReaderLabel="Close" onClick={() => {setImageId("");setViewContext(false)}} /></span>}
+                                        {/* {<i class="fa-solid fa-circle-xmark fa-2x" style={{padding:"0rem"}} onClick={() => {setImageId("");setViewContext(false)}}></i>} */}
                                         {<ContextPage imageId={imageId} modalOpen={viewContext} onViewContextChange={viewContextChange} basePath={basePath} />}        
                                     </div>
 
