@@ -6,10 +6,39 @@ const session = require('express-session');
 const cookieParser = require("cookie-parser");
 const path = require('path');
 const querystring = require('querystring');
+const swaggerJsdoc = require('swagger-jsdoc');
+const swaggerUi = require('swagger-ui-express');
 
 const app = express();
 const port = process.env.PORT || 3003;
 const oneDay = 1000 * 60 * 60 * 24;
+
+const options = {
+    definition: {
+      openapi: "3.0.0",
+      info: {
+        title: "Arif Books Express API with Swagger",
+        version: "0.1.0",
+        description:
+          "This is a simple Book API application made with Express and documented with Swagger",
+        license: {
+          name: "MIT",
+          url: "https://spdx.org/licenses/MIT.html",
+        },
+        contact: {
+          name: "skills with arif",
+          url: "arif.com",
+          email: "info@email.com",
+        },
+      },
+      servers: [
+        {
+          url: "http://localhost:3003/",
+        },
+      ],
+    },
+    apis: ["./src/routes/action-get.js"],
+  };
 
 app.use(session({secret:"nevergiveupinlife", cookie: { maxAge: oneDay }, saveUninitialized: true, resave: false}));
 app.use(cookieParser());
@@ -62,6 +91,13 @@ app.post('/health', function (req, res) {
 
     res.sendFile(path.join(__dirname,  "/build/app.html"));
 });
+
+const specs = swaggerJsdoc(options);
+app.use(
+  "/api-docs",
+  swaggerUi.serve,
+  swaggerUi.setup(specs)
+);
   
 database.connectToDatabase();
 
