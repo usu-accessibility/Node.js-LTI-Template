@@ -843,6 +843,29 @@ async function getReviewPageTableValues(pageNumber, filterText) {
   }
 }
 
+async function getTotalCountPerColumns(filterText){
+  try {
+    const reviewPageTableImagesCount = await sql.queryFirstRow(
+      `SELECT
+            SUM((SELECT COUNT(id) FROM at_image WHERE course_id = c.id)) AS total_images,
+            SUM((SELECT COUNT(id) FROM at_image WHERE course_id = c.id AND completed_at IS NOT NULL AND completed_at != '0000-00-00 00:00:00')) AS completed_images,
+            SUM((SELECT COUNT(id) FROM at_image WHERE course_id = c.id AND pushed_to_canvas = 1)) AS published_images,
+            SUM((SELECT COUNT(id) FROM at_image WHERE course_id = c.id AND advanced_type IS NOT NULL AND pushed_to_canvas = 0)) AS advanced_images,
+            SUM((SELECT COUNT(id) FROM at_image WHERE course_id = c.id AND editor != 0 AND pushed_to_canvas = 0)) AS available_images
+        FROM
+            at_course c
+        WHERE total_images != published_images and c.course_name LIKE ?
+      `, [`%${filterText !== "null" ? filterText:""}%`]
+    );
+
+    console.log(reviewPageTableImagesCount);
+    return reviewPageTableImagesCount;
+  }
+  catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
 
 
 async function createUser(lmsId, displayName) {
@@ -1630,5 +1653,6 @@ module.exports = {
   getCanvasPage,
   testDB,
   getReviewPageTableValues,
-  addTotalImagesToCourse
+  addTotalImagesToCourse,
+  getTotalCountPerColumns
 }

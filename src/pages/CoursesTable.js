@@ -1,5 +1,6 @@
 import React, { useState, useEffect , useRef, useCallback } from 'react';
 import {Button, Tooltip, Table, ScreenReaderContent} from "@instructure/ui";
+import axios from 'axios';
 
 export default function CoursesTable({basePath, courses, loadTable, setCourses, handleReview, setIsLoading, setPushMessage, handlePublish, courseFilter, setPageNumber, pageNumber}) {
   const [sortBy, setSortBy] = useState();
@@ -39,6 +40,7 @@ export default function CoursesTable({basePath, courses, loadTable, setCourses, 
   }, []);
 
   useEffect(() => {
+
     var val1 = 0;
     var val2 = 0;
     var val3 = 0;
@@ -46,23 +48,59 @@ export default function CoursesTable({basePath, courses, loadTable, setCourses, 
     var val5 = 0;
     var val6 = 0;
 
-    (courses || []).map(course => {
-      if(course.total_images !== course.published_images){
-        val1 += parseInt(course.total_images);
-        val2 += parseInt(course.completed_images);
-        val3 += parseInt(course.published_images);
-        val4 += parseInt(course.completed_images) - parseInt(course.published_images);
-        val5 += parseInt(course.advanced_images);
-        val6 += parseInt(course.available_images);
+    axios.get(
+      `${basePath}/get_courses_content_count?filterText=${courseFilter}`
+    )
+    .then((response) => {
+
+      var loadJson = {};
+
+      if(typeof response.data === "string"){
+        const jsonRegex = /\[.*\]/;
+        const jsonMatch = response.data.match(jsonRegex);
+
+        if (jsonMatch) {
+          const jsonString = jsonMatch[0];
+          loadJson = JSON.parse(jsonString)[0];
+        }
+      }
+      else {
+        loadJson = response.data[0];
       }
 
-      setNoOfImages(val1);
-      setCompletedImages(val2);
-      setPublishedImages(val3);
-      setImagesToPublish(val4);
-      setAdvancedImagesToPublish(val5);
-      setAvailableToPublish(val6);
-    });
+      console.log(loadJson);
+
+      setNoOfImages(parseInt(loadJson.total_images ? loadJson.total_images : 0));
+      setCompletedImages(parseInt(loadJson.completed_images ? loadJson.completed_images : 0));
+      setPublishedImages(parseInt(loadJson.published_images ? loadJson.published_images : 0));
+      setImagesToPublish(parseInt(loadJson.completed_images ? loadJson.completed_images : 0) - parseInt(loadJson.published_images ? loadJson.published_images : 0));
+      setAdvancedImagesToPublish(parseInt(loadJson.advanced_images ? loadJson.advanced_images : 0));
+      setAvailableToPublish(parseInt(loadJson.available_images ? loadJson.available_images : 0));
+
+
+    }).catch((error) => {
+      console.log(error);
+    })
+
+
+
+    // (courses || []).map(course => {
+    //   if(course.total_images !== course.published_images){
+    //     val1 += parseInt(course.total_images);
+    //     val2 += parseInt(course.completed_images);
+    //     val3 += parseInt(course.published_images);
+    //     val4 += parseInt(course.completed_images) - parseInt(course.published_images);
+    //     val5 += parseInt(course.advanced_images);
+    //     val6 += parseInt(course.available_images);
+    //   }
+
+    //   setNoOfImages(val1);
+    //   setCompletedImages(val2);
+    //   setPublishedImages(val3);
+    //   setImagesToPublish(val4);
+    //   setAdvancedImagesToPublish(val5);
+    //   setAvailableToPublish(val6);
+    // });
   }, [courses])
 
   function onSort(event, column) {

@@ -1,10 +1,7 @@
 import React, { useState, useEffect} from 'react';
-
 import CoursesTable from './CoursesTable';
 import ReviewModal from './ReviewModal';
-
 import { Overlay, Flex, Spinner, Mask, Text, Button, Alert } from '@instructure/ui';
-
 import axios from 'axios';
 
 export default function ReviewPublishPage(props) {
@@ -352,7 +349,7 @@ export default function ReviewPublishPage(props) {
           setIsLoading={setIsLoading}
           setPushMessage={setPushMessage}
           handlePublish={handlePublish}
-          courseFilter={""}
+          courseFilter={courseFilter}
           setPageNumber={setPageNumber}
           pageNumber={pageNumber}
         />

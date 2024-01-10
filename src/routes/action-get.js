@@ -342,6 +342,18 @@ module.exports = function(router, session){
         }        
     });
 
+    router.get('/get_courses_content_count', async (req, res) => {
+        try {  
+            let filteredText = req.query.filterText;
+
+            var results = await action.getTotalCountPerColumns(filteredText);
+            return res.json(results);
+        }
+        catch(error){
+            console.log(error);
+        }        
+    });
+
     // router.get('/get_filter_courses_info', async (req, res) => {
     //     try {
     //         let pageNumber = req.query.pageNumber;
