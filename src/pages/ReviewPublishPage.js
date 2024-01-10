@@ -39,8 +39,8 @@ export default function ReviewPublishPage(props) {
     return function(filteredData){
       clearTimeout(timer);
       timer = setTimeout(() => {
-        console.log("clicked");
-        console.log(filteredData);
+        // console.log("clicked");
+        // console.log(filteredData);
         setPageNumber(0);
 
         if(filteredData !== ""){
@@ -53,6 +53,7 @@ export default function ReviewPublishPage(props) {
             setCourseFilter(filteredData);
           }
           else {
+            setCourseFilter(filteredData);
             setPageNumber(0);
           }
         }
@@ -110,7 +111,7 @@ export default function ReviewPublishPage(props) {
     }
   }
 
-  function loadTable(fileredData = null, courseId = null, pushed_images, needs_conversion) {
+  function loadTable(filteredData = null, courseId = null, pushed_images, needs_conversion) {
     axios.get(
       `${props.basePath}/get_courses_info?pageNumber=${pageNumber}&filterText=${courseFilter}`
     )
@@ -131,16 +132,16 @@ export default function ReviewPublishPage(props) {
         loadJson = response.data;
       }
 
-      console.log("loadtable")
-      console.log(loadJson);
-      console.log(courses);
-      console.log(pageNumber * 20 === courses.length);
-      console.log(pageNumber);
-      console.log(fileredData)
-      console.log(courses.length === 0 || fileredData !== null);
-      console.log("done");
+      // console.log("loadtable")
+      // console.log(loadJson);
+      // console.log(courses);
+      // console.log(pageNumber * 20 === courses.length);
+      // console.log(pageNumber);
+      // console.log(filteredData)
+      // console.log(courses.length === 0 || filteredData !== null);
+      // console.log("done");
 
-      if(courses.length === 0 || fileredData !== null){
+      if(courses.length === 0 || filteredData !== null){
         setCourses(loadJson)
       }
       else if(pageNumber * 20 === courses.length){

@@ -815,8 +815,8 @@ async function countAvailableImages(courseId) {
 
 
 async function getReviewPageTableValues(pageNumber, filterText) {
-  console.log(`%${filterText !== "null" ? filterText:""}%`, pageNumber * 20)
-  console.log(typeof filterText)
+  // console.log(`%${filterText !== "null" ? filterText:""}%`, pageNumber * 20)
+  // console.log(typeof filterText)
   try {
     const reviewPageTableImagesCount = await sql.queryFirstRow(
       `SELECT
@@ -829,9 +829,9 @@ async function getReviewPageTableValues(pageNumber, filterText) {
         (SELECT COUNT(id) FROM at_image WHERE course_id = c.id AND editor != 0 AND pushed_to_canvas = 0) AS available_images
       FROM
         at_course c
-      WHERE total_images != published_images and c.course_name LIKE '%${filterText !== "null" ? filterText:""}%'
-      LIMIT 20 OFFSET ${pageNumber * 20};
-      `, []
+      WHERE total_images != published_images and c.course_name LIKE ?
+      LIMIT 20 OFFSET ?;
+      `, [`%${filterText !== "null" ? filterText:""}%`, pageNumber * 20]
     );
 
     // console.log(reviewPageTableImagesCount)

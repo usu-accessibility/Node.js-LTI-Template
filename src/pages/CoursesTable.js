@@ -83,8 +83,8 @@ export default function CoursesTable({basePath, courses, loadTable, setCourses, 
     if (shouldReverse(id)) {
       let tempCourses = [...courses];
       tempCourses.sort((a, b) => {
-        console.log(a[id]);
-        console.log(typeof a[id] === "string");
+        // console.log(a[id]);
+        // console.log(typeof a[id] === "string");
         if (typeof a[id] === "string") {
           return a[id].localeCompare(b[id]);
         } else {
@@ -92,12 +92,12 @@ export default function CoursesTable({basePath, courses, loadTable, setCourses, 
         }
       });
 
-      console.log(localAscending);
-      console.log(tempCourses);
+      // console.log(localAscending);
+      // console.log(tempCourses);
 
       if (!localAscending) {
         tempCourses = tempCourses.slice().reverse();
-        console.log(tempCourses);
+        // console.log(tempCourses);
       }
 
       setCourses(tempCourses);
@@ -232,7 +232,7 @@ export default function CoursesTable({basePath, courses, loadTable, setCourses, 
       <Table.Body>
         {(courses || []).map((course, index) => {
             if(course.total_images !== course.published_images){
-              if((courseFilter === "") || (courseFilter !== "" && course.name && course.name.toLowerCase().replaceAll(" ", "").includes(courseFilter.toLowerCase().replaceAll(" ", "")))){
+              // if((courseFilter === "") || (courseFilter !== "" && course.name && course.name.toLowerCase().replaceAll(" ", "").includes(courseFilter.toLowerCase().replaceAll(" ", "")))){
                 if(courses.length === index + 1 && courses.length === (pageNumber * 20 + 20)){
                   return (
                     <Table.Row key={course.id}>
@@ -262,7 +262,6 @@ export default function CoursesTable({basePath, courses, loadTable, setCourses, 
                     </Table.Row>
                   )
                 }
-              }
             }
         })}
       </Table.Body>
