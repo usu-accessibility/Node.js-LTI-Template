@@ -331,14 +331,28 @@ module.exports = function(router, session){
 
     router.get('/get_courses_info', async (req, res) => {
         try {
-            let pageNumber = req.query.pageNumber;
-            var results = await action.getReviewPageTableValues(pageNumber);
+            let pageNumber = req.query.pageNumber;    
+            let filteredText = req.query.filterText;
+
+            var results = await action.getReviewPageTableValues(pageNumber, filteredText);
             return res.json(results);
         }
         catch(error){
             console.log(error);
         }        
     });
+
+    // router.get('/get_filter_courses_info', async (req, res) => {
+    //     try {
+    //         let pageNumber = req.query.pageNumber;
+    //         let filteredText = req.query.filterText;
+    //         var results = await action.getReviewPageTableValues(pageNumber, filteredText);
+    //         return res.json(results);
+    //     }
+    //     catch(error){
+    //         console.log(error);
+    //     }        
+    // });
 
     router.get('/get_completed_images', async (req, res) => {
         try {

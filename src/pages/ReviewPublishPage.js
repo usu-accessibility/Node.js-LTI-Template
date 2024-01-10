@@ -22,13 +22,49 @@ export default function ReviewPublishPage(props) {
   const [pushMessage, setPushMessage] = useState('');
   const [courseFilter, setCourseFilter] = useState("");
   const [pageNumber, setPageNumber] = useState(0);
+  const [pageNumberFiltered, setPageNumberFiltered] = useState(0);
 
   useEffect(() => {    
     loadTable();
+    // loadFilteredTable();
   }, [pageNumber]);
 
+  useEffect(() => {    
+    loadTable(courseFilter);
+    // requestFilteredData(courseFilter);
+  }, [courseFilter]);
+
+  const getFilteredData = function(filteredData){
+    let timer;
+    return function(filteredData){
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        console.log("clicked");
+        console.log(filteredData);
+        setPageNumber(0);
+
+        if(filteredData !== ""){
+          setCourseFilter(filteredData);
+          // loadTable(filteredData);
+        }
+        else{
+          if(pageNumber === 0){
+            // loadTable(filteredData);
+            setCourseFilter(filteredData);
+          }
+          else {
+            setPageNumber(0);
+          }
+        }
+        // loadTable(filteredText !== "" ? filteredText : null);
+      },300);
+    }
+  }
+
+  var requestFilteredData = getFilteredData();
+
   function handleFilterChange(e){
-    setCourseFilter(e.target.value.trim());
+    requestFilteredData(e.target.value.trim());
   }
 
   function updateMondayBoard(courseId, pushed_images, needs_conversion){
@@ -74,9 +110,9 @@ export default function ReviewPublishPage(props) {
     }
   }
 
-  function loadTable(courseId = null, pushed_images, needs_conversion) {
+  function loadTable(fileredData = null, courseId = null, pushed_images, needs_conversion) {
     axios.get(
-      `${props.basePath}/get_courses_info?pageNumber=${pageNumber}`
+      `${props.basePath}/get_courses_info?pageNumber=${pageNumber}&filterText=${courseFilter}`
     )
     .then((response) => {
 
@@ -95,7 +131,16 @@ export default function ReviewPublishPage(props) {
         loadJson = response.data;
       }
 
-      if(courses.length === 0){
+      console.log("loadtable")
+      console.log(loadJson);
+      console.log(courses);
+      console.log(pageNumber * 20 === courses.length);
+      console.log(pageNumber);
+      console.log(fileredData)
+      console.log(courses.length === 0 || fileredData !== null);
+      console.log("done");
+
+      if(courses.length === 0 || fileredData !== null){
         setCourses(loadJson)
       }
       else if(pageNumber * 20 === courses.length){
@@ -111,6 +156,48 @@ export default function ReviewPublishPage(props) {
       console.log(error);
     })
   }
+
+  // function loadFilteredTable(filterText = null) {
+  //   axios.get(
+  //     `${props.basePath}/get_filter_courses_info?pageNumber=${pageNumber}&filterText=${filterText}`
+  //   )
+  //   .then((response) => {
+
+  //     var loadJson = {};
+
+  //     if(typeof response.data === "string"){
+  //       const jsonRegex = /\[.*\]/;
+  //       const jsonMatch = response.data.match(jsonRegex);
+  
+  //       if (jsonMatch) {
+  //         const jsonString = jsonMatch[0];
+  //         loadJson = JSON.parse(jsonString);
+  //       }
+  //     }
+  //     else {
+  //       loadJson = response.data;
+  //     }
+
+  //     console.log(loadJson);
+  //     console.log(courses);
+  //     console.log(pageNumber * 20 === courses.length);
+
+  //     if(filterText){
+  //       setCourses(loadJson)
+  //     }
+  //     else if(pageNumber * 20 === courses.length){
+  //       setCourses(prevValues => {
+  //         return [...prevValues, ...loadJson]
+  //       });
+  //     }
+
+  //     // if(courseId){
+  //     //   updateMondayBoard(courseId, pushed_images, needs_conversion);
+  //     // }
+  //   }).catch((error) => {
+  //     console.log(error);
+  //   })
+  // }
 
   function handleReview(courseId, courseName) {
 
@@ -226,7 +313,7 @@ export default function ReviewPublishPage(props) {
         setPushMessage(`Success! The alt text for ${loadJson.pushed_images} image${loadJson.pushed_images == 1 ? ' was' : 's were'} successfully updated within Canvas.`)
       }
 
-      loadTable(courseId, loadJson.pushed_images, loadJson.needs_conversion);
+      loadTable(null, courseId, loadJson.pushed_images, loadJson.needs_conversion);
 
     })
     .catch((error) => {
@@ -264,7 +351,7 @@ export default function ReviewPublishPage(props) {
           setIsLoading={setIsLoading}
           setPushMessage={setPushMessage}
           handlePublish={handlePublish}
-          courseFilter={courseFilter}
+          courseFilter={""}
           setPageNumber={setPageNumber}
           pageNumber={pageNumber}
         />

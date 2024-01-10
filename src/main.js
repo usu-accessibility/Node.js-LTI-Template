@@ -13,7 +13,7 @@ import axios from 'axios';
 function App() {
   let isDev = process.env.ENVIRONMENT;
 
-  var basePath = isDev ? 'https://df2d-144-39-247-54.ngrok-free.app' : 'https://accessibility.dheeru.link';
+  var basePath = isDev ? 'https://61f3-139-64-171-69.ngrok-free.app' : 'https://accessibility.dheeru.link';
 
   var i = window.location.pathname.lastIndexOf('/');
   var navBasePath = window.location.pathname.slice(undefined, i);
