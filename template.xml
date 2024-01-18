@@ -8,15 +8,15 @@
     http://www.imsglobal.org/xsd/imsbasiclti_v1p0 http://www.imsglobal.org/xsd/lti/ltiv1p0/imsbasiclti_v1p0.xsd
     http://www.imsglobal.org/xsd/imslticm_v1p0 http://www.imsglobal.org/xsd/lti/ltiv1p0/imslticm_v1p0.xsd
     http://www.imsglobal.org/xsd/imslticp_v1p0 http://www.imsglobal.org/xsd/lti/ltiv1p0/imslticp_v1p0.xsd">
-    <blti:title>Alt Text App - Dev</blti:title>
+    <blti:title>Alt Text App</blti:title>
     <blti:description>Easily add alt text to images in Canvas</blti:description>
     <blti:icon></blti:icon>   
-    <blti:launch_url>https://accessibility.dheeru.link/health</blti:launch_url>
+    <blti:launch_url>https://accessibility.accessapps.link/health</blti:launch_url>
     <blti:extensions platform="canvas.instructure.com">
       <lticm:property name="tool_id">accessibilityalttext</lticm:property>
       <lticm:property name="privacy_level">public</lticm:property>
       <lticm:options name="course_navigation">
-        <lticm:property name="url">https://accessibility.dheeru.link/health</lticm:property>
+        <lticm:property name="url">https://accessibility.accessapps.link/health</lticm:property>
         <lticm:property name="text">Alt Text App - Dev</lticm:property>
         <lticm:property name="visibility">public</lticm:property>
         <lticm:property name="default">enabled</lticm:property>
