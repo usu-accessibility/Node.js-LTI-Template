@@ -844,6 +844,7 @@ async function getReviewPageTableValues(pageNumber, filterText) {
 }
 
 async function getTotalCountPerColumns(filterText){
+  filterText = filterText.trim();
   try {
     const reviewPageTableImagesCount = await sql.queryFirstRow(
       `SELECT
@@ -855,16 +856,15 @@ async function getTotalCountPerColumns(filterText){
         FROM
             at_course c
         WHERE total_images != published_images and c.course_name LIKE ?
-      `, [`%${filterText !== "null" ? filterText:""}%`]
+      `, [`${filterText !== "null" ? filterText !== "" ? "%" + filterText + "%" : "" :""}`]
     );
 
-    console.log(reviewPageTableImagesCount);
     return reviewPageTableImagesCount;
   }
   catch (error) {
     console.error(error);
     throw error;
-  }
+  }1
 }
 
 
