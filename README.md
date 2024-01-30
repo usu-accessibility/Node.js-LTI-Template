@@ -10,17 +10,20 @@ This template provides a structure for a Node.js application using LTI (Learning
   
 - **src:**
   - **constants:** Contains constant values used throughout the application.
-  - **controllers:** Houses controllers responsible for handling HTTP requests.
+  - **controllers:** Has all the main methods of the application and used in processing the get and post requests.
   - **helpers:** Contains utility functions and helper modules.
-  - **middlewares:** Holds middleware functions for request processing.
-  - **pages:** Includes the main pages of the application.
-  - **services:** Houses services that interact with external APIs or perform specific business logic.
+  - **middlewares:** Has the methods that secure the requests by verifying enough permissions.
+  - **pages:** Has the frontend pages of the application.
+  - **routes:** Has all the post and get requests.
+  - **services:** Has all the integrations to third party services.
 
 - **.dockerignore:** Specifies files and directories to be ignored when building Docker images.
 
 - **.env:** Configuration file for environment variables.
 
 - **.gitignore:** Specifies files and directories to be ignored by Git.
+
+- **Dockerfile:** Specifies instructions to build a docker image.
 
 - **index.js:** The entry point of the Node.js application.
 
